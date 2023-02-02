@@ -58,6 +58,10 @@ rm enformer_model.tar.gz &&\
 cd ../../
 ```
 
+Model ref data
+
+Enformer Celltyping model
+
 ## Using Enformer Celltyping
 
 Enformer Celltyping has two main use cases:

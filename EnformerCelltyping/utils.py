@@ -1656,30 +1656,11 @@ class PreSavedDataGen(tf.keras.utils.Sequence):
     Generate data for training when you have it 
     loaded and saved in npz
     """
-    def __init__(self, files, batch_size,epoch_prop=1,
-                 buffer_bp=87100,shuffle=True,
-                 load_chrom_access = True,filt_y_channels=False,
-                 use_zero_chrom_access = False,
-                 chrom_access_minus_avg = False,
-                 lcl_chrom_access = False,
-                 sep_gbl_chrom_access = True,
-                 avg_ct_sep_outputs = False,
-                 test_just_ct = False,
-                 shorten_chrom_access = 1):
+    def __init__(self, files, batch_size,
+                 shuffle=True):
         self.files = files
         self.batch_size = batch_size
         self.shuffle = shuffle
-        self.load_chrom_access = load_chrom_access
-        self.filt_y_channels = filt_y_channels
-        self.buffer_bp = buffer_bp
-        self.epoch_prop = epoch_prop
-        self.use_zero_chrom_access = use_zero_chrom_access
-        self.chrom_access_minus_avg = chrom_access_minus_avg
-        self.lcl_chrom_access = lcl_chrom_access
-        self.sep_gbl_chrom_access = sep_gbl_chrom_access
-        self.avg_ct_sep_outputs = avg_ct_sep_outputs
-        self.shorten_chrom_access = shorten_chrom_access
-        self.test_just_ct = test_just_ct
         self.indices = np.arange(len(self.files))
         self.on_epoch_end()
         
@@ -1706,128 +1687,32 @@ class PreSavedDataGen(tf.keras.utils.Sequence):
         X_chrom_access_gbl = []
         y = []
         y_avg = []
-        if self.epoch_prop<1:
-            epoch_size = int(len(file_list_temp)*self.epoch_prop)
-            epoch_files = file_list_temp[:epoch_size]
-        else:
-            epoch_files = file_list_temp
+        epoch_files = file_list_temp
         for ind,ID in enumerate(epoch_files):
             # load
             dat = np.load(ID)
-            # load ATAC
-            if (self.load_chrom_access):
-                if self.lcl_chrom_access:
-                    atac_dat = dat
-                else:    
-                    atac_ID = os.path.dirname(ID)+'/'+os.path.basename(ID).split('_')[0]+'_ATAC.npz'
-                    if self.chrom_access_minus_avg is not False:
-                        atac_ID = os.path.dirname(ID)+'/'+os.path.basename(ID).split('_')[0]+'_ATAC_norm.npz'
-                    atac_dat = np.load(atac_ID)
-                if self.use_zero_chrom_access is not False:
-                    #just add zero's for ATAC so it is ignored by model
-                    #this can be done during training to test it is learning
-                    #something from it and not just ignoring it
-                    shr = (self.shorten_chrom_access//250)//2
-                    len_atac = atac_dat['X_chrom_access'].shape[0]
-                    X_chrom_access.append(np.zeros(atac_dat['X_chrom_access'][:,shr:len_atac-shr].shape))
-                    if self.sep_gbl_chrom_access:
-                        X_chrom_access_gbl.append(np.zeros(atac_dat['X_chrom_access_gbl'].shape))
-                else:
-                    #load ATAC cell typing data from sep file
-                    shr = (self.shorten_chrom_access//128)//2
-                    len_atac = atac_dat['X_chrom_access'].shape[1]
-                    X_chrom_access.append(atac_dat['X_chrom_access'][:,shr:len_atac-shr])
-                    if self.sep_gbl_chrom_access:
-                        X_chrom_access_gbl.append(atac_dat['X_chrom_access_gbl'])
-                        
+            # ATAC dat stored in same location
+            atac_dat = dat
+            #load ATAC cell typing data from sep file
+            X_chrom_access.append(atac_dat['X_chrom_access'])
+            X_chrom_access_gbl.append(atac_dat['X_chrom_access_gbl'])    
             #store - append values
             X_dna.append(dat['X_dna'])
-            #just shorten output on the fly
-            if(self.buffer_bp>87100):#0.114 pred_prop
-                diff_buff = (self.buffer_bp//25)-(87100//25)
-                #filt y by channels of interest
-                if self.filt_y_channels is not False:
-                    if self.avg_ct_sep_outputs:
-                        #y_avg will be predicted by the DNA channel since it won't
-                        #change between cell types
-                        y_avg_tmp = dat['y_avg'][:,
-                                          diff_buff:dat['y_avg'].shape[1]-diff_buff,
-                                          self.filt_y_channels]
-                        y_avg.append(y_avg_tmp)
-                        #y is now the difference betweent the act cell type values
-                        #and the training cells' average
-                        #this will be predicted by the CT channel
-                        y.append(dat['y_act'][:,
-                                          diff_buff:dat['y_act'].shape[1]-diff_buff,
-                                          self.filt_y_channels]-y_avg_tmp)
-                        
-                        
-                    else:    
-                        y.append(dat['y'][:,
-                                          diff_buff:dat['y'].shape[1]-diff_buff,
-                                          self.filt_y_channels])
-                else:
-                    if self.avg_ct_sep_outputs:
-                        #y_avg will be predicted by the DNA channel since it won't
-                        #change between cell types
-                        y_avg_tmp = dat['y_avg'][:,
-                                                 diff_buff:dat['y_avg'].shape[1]-diff_buff,
-                                                 :]
-                        y_avg.append(y_avg_tmp)
-                        #y is now the difference between the act cell type values
-                        #and the training cells' average
-                        #this will be predicted by the CT channel
-                        y.append(dat['y_act'][:,
-                                              diff_buff:dat['y_act'].shape[1]-diff_buff,
-                                              :]-y_avg_tmp)
-                    else:    
-                        y.append(dat['y'][:,
-                                          diff_buff:dat['y'].shape[1]-diff_buff,
-                                          :])
-            else:
-                #filt y by channels of interest
-                if self.filt_y_channels is not False:  
-                    if self.avg_ct_sep_outputs:
-                        #y_avg will be predicted by the DNA channel since it won't
-                        #change between cell types
-                        y_avg_tmp = dat['y_avg'][:,:,self.filt_y_channels]
-                        y_avg.append(y_avg_tmp)
-                        #y is now the difference betweent the act cell type values
-                        #and the training cells' average
-                        #this will be predicted by the CT channel
-                        y.append(dat['y_act'][:,:,self.filt_y_channels]-y_avg_tmp)
-                    else:
-                        y.append(dat['y'][:,:,self.filt_y_channels])
-                else:
-                    if self.avg_ct_sep_outputs:
-                        #y_avg will be predicted by the DNA channel since it won't
-                        #change between cell types
-                        y_avg_tmp = dat['y_avg']
-                        y_avg.append(y_avg_tmp)
-                        #y is now the difference betweent the act cell type values
-                        #and the training cells' average
-                        #this will be predicted by the CT channel
-                        y.append(dat['y_act']-y_avg_tmp)
-                    else:    
-                        y.append(dat['y'])
+            #y_avg will be predicted by the DNA channel since it won't
+            #change between cell types
+            y_avg_tmp = dat['y_avg']
+            y_avg.append(y_avg_tmp)
+            #y is now the difference betweent the act cell type values
+            #and the training cells' average
+            #this will be predicted by the CT channel
+            y.append(dat['y_act']-y_avg_tmp)
         #combine X, y
-        if(self.load_chrom_access and self.sep_gbl_chrom_access):
-            X = ({'dna':tf.concat(X_dna,axis=0),
-                  'chrom_access_lcl':tf.concat(X_chrom_access,axis=0),
-                  'chrom_access_gbl':tf.concat(X_chrom_access_gbl,axis=0),})
-        elif (self.load_chrom_access):
-            X = ({'dna':tf.concat(X_dna,axis=0),
-                  'chrom_access':tf.concat(X_chrom_access,axis=0)})
-        else:
-            X = ({'dna':tf.concat(X_dna,axis=0)})
-        if self.avg_ct_sep_outputs:
-            if self.test_just_ct:
-                y = tf.concat(y,axis=0)
-            else:
-                y = ({'avg':tf.concat(y_avg,axis=0),
-                  'delta':tf.concat(y,axis=0)})
-        else:
-            y = tf.concat(y,axis=0)
+        X = ({'dna':tf.concat(X_dna,axis=0),
+              'chrom_access_lcl':tf.concat(X_chrom_access,axis=0),
+              'chrom_access_gbl':tf.concat(X_chrom_access_gbl,axis=0),})
+        y = ({'avg':tf.concat(y_avg,axis=0),
+          'delta':tf.concat(y,axis=0)})
+
         return X, y    
 
     def __len__(self):
@@ -2019,8 +1904,9 @@ def pred_region(model, cell, pos, the_chr, WINDOW,
                     
                     
 def plot_tracks(tracks1, tracks2, tracks3, 
-                labels, the_chr, strt_bp, end_bp,
-                cell, tracks4 = None, 
+                the_chr='', strt_bp = '', end_bp='',cell='', 
+                labels = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
+                tracks4 = None, 
                 height=1, same_y = True, 
                 save_plot = None, overall_title = None,
                 nme_p1='Experiment',nme_p2='Average',
@@ -2123,7 +2009,8 @@ def plot_tracks(tracks1, tracks2, tracks3,
         )
     
     
-    plt.xlabel(f"{cell.capitalize()} {the_chr.capitalize()} :{strt_bp:,}-{end_bp:,}", 
+    if (the_chr!='' or strt_bp != '' or end_bp!='' or cell!=''):
+        plt.xlabel(f"{cell.capitalize()} {the_chr.capitalize()} :{strt_bp:,}-{end_bp:,}", 
                fontsize=15)
     if overall_title is not None:
         plt.suptitle(overall_title,fontsize=18)
