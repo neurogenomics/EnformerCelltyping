@@ -1,0 +1,111 @@
+﻿Name,Link
+BSS00015,https://epigenome.wustl.edu/epimap/data/observed/FINAL_ATAC-seq_BSS00015.sub_VS_Uniform_BKG_CONTROL_36_50000000.pval.signal.bedgraph.gz.bigWig
+BSS00035,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00035_ATAC-seq.bigWig
+BSS00087,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00087_ATAC-seq.bigWig
+BSS00171,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00171_ATAC-seq.bigWig
+BSS00231,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00231_ATAC-seq.bigWig
+BSS00232,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00232_ATAC-seq.bigWig
+BSS00353,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00353_ATAC-seq.bigWig
+BSS00354,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00354_ATAC-seq.bigWig
+BSS00368,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00368_ATAC-seq.bigWig
+BSS00379,https://epigenome.wustl.edu/epimap/data/observed/FINAL_ATAC-seq_BSS00379.sub_VS_Uniform_BKG_CONTROL_36_50000000.pval.signal.bedgraph.gz.bigWig
+BSS00439,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00439_ATAC-seq.bigWig
+BSS00478,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00478_ATAC-seq.bigWig
+BSS00484,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00484_ATAC-seq.bigWig
+BSS00492,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00492_ATAC-seq.bigWig
+BSS00507,https://epigenome.wustl.edu/epimap/data/observed/FINAL_ATAC-seq_BSS00507.sub_VS_Uniform_BKG_CONTROL_36_50000000.pval.signal.bedgraph.gz.bigWig
+BSS00529,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00529_ATAC-seq.bigWig
+BSS00558,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00558_ATAC-seq.bigWig
+BSS00720,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00720_ATAC-seq.bigWig
+BSS00731,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00731_ATAC-seq.bigWig
+BSS01065,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01065_ATAC-seq.bigWig
+BSS01068,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01068_ATAC-seq.bigWig
+BSS01119,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01119_ATAC-seq.bigWig
+BSS01226,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01226_ATAC-seq.bigWig
+BSS01274,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01274_ATAC-seq.bigWig
+BSS01344,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01344_ATAC-seq.bigWig
+BSS01371,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01371_ATAC-seq.bigWig
+BSS01399,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01399_ATAC-seq.bigWig
+BSS01405,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01405_ATAC-seq.bigWig
+BSS01406,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01406_ATAC-seq.bigWig
+BSS01414,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01414_ATAC-seq.bigWig
+BSS01415,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01415_ATAC-seq.bigWig
+BSS01438,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01438_ATAC-seq.bigWig
+BSS01463,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01463_ATAC-seq.bigWig
+BSS01601,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01601_ATAC-seq.bigWig
+BSS01639,https://epigenome.wustl.edu/epimap/data/observed/FINAL_ATAC-seq_BSS01639.sub_VS_Uniform_BKG_CONTROL_36_50000000.pval.signal.bedgraph.gz.bigWig
+BSS01651,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01651_ATAC-seq.bigWig
+BSS01857,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01857_ATAC-seq.bigWig
+BSS00146,https://epigenome.wustl.edu/epimap/data/observed/FINAL_ATAC-seq_BSS00146.sub_VS_Uniform_BKG_CONTROL_36_50000000.pval.signal.bedgraph.gz.bigWig
+MonocyteCD4CD16,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00178_ATAC-seq.bigWig
+MatureNeutrophil,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01380_ATAC-seq.bigWig
+CD4T,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00188_ATAC-seq.bigWig
+Microglia_hg38,http://homer.ucsd.edu/hubs/pmid_28546318_gosselin_skola_coufal_2017/hubDirectory/hg38/human_atac_exvivo_pooled.ucsc.bigWig
+BSS00762,https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00762_ATAC-seq.bigWig
+BSS00013, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00013_ATAC-seq.bigWig
+BSS00060, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00060_ATAC-seq.bigWig
+BSS00078, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00078_ATAC-seq.bigWig
+BSS00088, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00088_ATAC-seq.bigWig
+BSS00089, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00089_ATAC-seq.bigWig
+BSS00173, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00173_ATAC-seq.bigWig
+BSS00175, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00175_ATAC-seq.bigWig
+BSS00214, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00214_ATAC-seq.bigWig
+BSS00215, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00215_ATAC-seq.bigWig
+BSS00216, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00216_ATAC-seq.bigWig
+BSS00217, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00217_ATAC-seq.bigWig
+BSS00220, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00220_ATAC-seq.bigWig
+BSS00227, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00227_ATAC-seq.bigWig
+BSS00228, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00228_ATAC-seq.bigWig
+BSS00267, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00267_ATAC-seq.bigWig
+BSS00270, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00270_ATAC-seq.bigWig
+BSS00273, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00273_ATAC-seq.bigWig
+BSS00287, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00287_ATAC-seq.bigWig
+BSS00296, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00296_ATAC-seq.bigWig
+BSS00316, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00316_ATAC-seq.bigWig
+BSS00318, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00318_ATAC-seq.bigWig
+BSS00341, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00341_ATAC-seq.bigWig
+BSS00476, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00476_ATAC-seq.bigWig
+BSS00512, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00512_ATAC-seq.bigWig
+BSS00513, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00513_ATAC-seq.bigWig
+BSS00525, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00525_ATAC-seq.bigWig
+BSS00715, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00715_ATAC-seq.bigWig
+BSS00716, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00716_ATAC-seq.bigWig
+BSS00717, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00717_ATAC-seq.bigWig
+BSS00737, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00737_ATAC-seq.bigWig
+BSS00739, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS00739_ATAC-seq.bigWig
+BSS01124, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01124_ATAC-seq.bigWig
+BSS01125, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01125_ATAC-seq.bigWig
+BSS01126, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01126_ATAC-seq.bigWig
+BSS01159, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01159_ATAC-seq.bigWig
+BSS01168, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01168_ATAC-seq.bigWig
+BSS01190, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01190_ATAC-seq.bigWig
+BSS01213, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01213_ATAC-seq.bigWig
+BSS01272, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01272_ATAC-seq.bigWig
+BSS01282, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01282_ATAC-seq.bigWig
+BSS01283, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01283_ATAC-seq.bigWig
+BSS01287, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01287_ATAC-seq.bigWig
+BSS01319, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01319_ATAC-seq.bigWig
+BSS01332, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01332_ATAC-seq.bigWig
+BSS01377, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01377_ATAC-seq.bigWig
+BSS01390, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01390_ATAC-seq.bigWig
+BSS01397, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01397_ATAC-seq.bigWig
+BSS01423, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01423_ATAC-seq.bigWig
+BSS01431, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01431_ATAC-seq.bigWig
+BSS01441, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01441_ATAC-seq.bigWig
+BSS01446, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01446_ATAC-seq.bigWig
+BSS01545, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01545_ATAC-seq.bigWig
+BSS01548, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01548_ATAC-seq.bigWig
+BSS01562, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01562_ATAC-seq.bigWig
+BSS01574, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01574_ATAC-seq.bigWig
+BSS01578, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01578_ATAC-seq.bigWig
+BSS01588, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01588_ATAC-seq.bigWig
+BSS01612, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01612_ATAC-seq.bigWig
+BSS01631, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01631_ATAC-seq.bigWig
+BSS01659, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01659_ATAC-seq.bigWig
+BSS01667, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01667_ATAC-seq.bigWig
+BSS01676, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01676_ATAC-seq.bigWig
+BSS01712, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01712_ATAC-seq.bigWig
+BSS01714, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01714_ATAC-seq.bigWig
+BSS01814, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01814_ATAC-seq.bigWig
+BSS01820, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01820_ATAC-seq.bigWig
+BSS01825, https://epigenome.wustl.edu/epimap/data/imputed/impute_BSS01825_ATAC-seq.bigWig

@@ -1,0 +1,10 @@
+{
+    "print-snps":"./data/sldp/1000G_hm3_noMHC.rsid",
+    "bfile-chr":"./data/sldp/plink_files/1000G.EUR.QC.",
+    "bfile-reg-chr":"./data/sldp/plink_files/1000G.EUR.QC.hm3_noMHC.",
+    "ldscores-chr":"./data/sldp/LDscore/LDscore.",
+    "svd-stem":"./data/sldp/svds_95percent/",
+    "ld-blocks":"./data/sldp/pickrell_ldblocks.hg19.eur.bed",
+    "background-sannot-chr":["./data/sldp/maf5/"],
+    "refpanel-name":"SS-QTLs"
+}

@@ -1,0 +1,30 @@
+name: EnformerCelltyping
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pandas
+  - pyarrow
+  - seaborn
+  - ipykernel
+  - pybigwig
+  - requests   
+  - parallel
+  - cudatoolkit
+  - cudnn
+  - pip 
+  - pip:
+    - requests
+    - markdown
+    - CrossMap
+    - deeptools
+    - numpy
+    - omegaconf
+    - wandb
+    #enformer dependencies
+    - dm-sonnet==2.0.0
+    - kipoiseq==0.5.2
+    - tensorflow==2.5.0 
+    - tensorflow-hub==0.11.0
