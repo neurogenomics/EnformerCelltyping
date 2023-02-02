@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#make sure data doesn't save
+data/h*
+data/e*
+data/a*
+data/t*
+data/q*
+data/dna*

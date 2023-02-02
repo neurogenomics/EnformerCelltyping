@@ -177,6 +177,3 @@ HIST_MARKS = ["h3k27ac", "h3k4me1","h3k4me3","h3k9me3","h3k27me3","h3k36me3","at
 AVG_DATA_PATH = dict(zip(HIST_MARKS, [h3k27ac_AVG_PATH,h3k4me1_AVG_PATH,h3k4me3_AVG_PATH,
                                       h3k9me3_AVG_PATH,h3k27me3_AVG_PATH,h3k36me3_AVG_PATH,
                                       ATAC_AVG_PATH]))
-AVG_DATA = dict(zip(HIST_MARKS, [H3K27AC_DATA,H3K4ME1_DATA,H3K4ME3_DATA,
-                                 H3K9ME3_DATA,H3K27ME3_DATA,H3K36ME3_DATA,
-                                 ATAC_DATA]))

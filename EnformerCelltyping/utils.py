@@ -65,12 +65,10 @@ from tensorflow.python.util.tf_export import tf_export
 import tensorflow as tf
 #get enformer initialised
 import sonnet as snt
-from enformer.attention_module import *
+from EnformerCelltyping.attention_module import *
 #enf model converted to keras
 from EnformerCelltyping.enformer import Enformer
 from EnformerCelltyping.enformer import TargetLengthCrop1D
-#enf celltyping model (snt)
-from EnformerCelltyping.enformer_celltyping import Enformer_Celltyping
 from EnformerCelltyping.enformer_chopped import Enformer_Chopped
 
 def _get_loader(export_dir, tags=None, options=None):
@@ -317,6 +315,170 @@ def create_enf_model(path: str,test_against_tf_hub: bool = True):
     #Finally return the model so it can be used for fine-tuning
     return(model)
 
+#tf sonnet model
+def create_enf_chopped_model(path: str):
+    """
+    Lift weights from pre-trained Enformer model available in tf.hub
+    and move to chopped version of Enformer model which has below 
+    architecture. This can then be used in a fine-tuning approach.
+    Keep architecture:
+    
+    1. Stem 
+    2. Conv Tower 
+    3. Transformer with relative positional encodings
+    4. Crop. 
+    
+    Requires >24GB of RAM to run
+    
+    Arguements:
+    
+    path: 
+        Path to enformer model scripts.
+    """
+    
+    loader = _get_loader(path)
+    variable_nodes = [n for n in loader._nodes if isinstance(n,tf.Variable)]
+    #first one isn't a tf.Variable from the model, remove it
+    variable_nodes = variable_nodes[1:]
+    
+    #construct an untrained chopped enformer model with the aim to add the 
+    #learned weights 
+    #create model with initialised weights    
+    enf_chopped = Enformer_Chopped(channels=1536,
+                                   num_heads=8,
+                                   num_transformer_layers=11,
+                                   pooling_type='attention')
+    #have to pass data through model to initialise all the weights
+    #note this will require quite a bit of RAM
+    g1 = tf.random.Generator.from_seed(1)
+    input_= tf.zeros([1,196_608,4], tf.float32)
+    rand_batch = {'sequence': input_,'target': g1.normal(shape=[1, 896, 6])}
+    output = enf_chopped(rand_batch['sequence'], is_training=True)
+
+    #now let's make sure the number of weights is the same
+    init_enf_names = [n.name for n in enf_chopped.variables]
+    extrac_weight_names = [n.name for n in variable_nodes]
+    #Number of weights won't match, we only want to add weights for certain bits
+    #order and naming needs to be updated, once they match we can update by name
+    for i in range(len(variable_nodes)):
+        variable_nodes[i]=tf.Variable(variable_nodes[i].value(),
+                                      name='enformer_chopped'+extrac_weight_names[i][5:])
+    #update names
+    extrac_weight_names = [n.name for n in variable_nodes]
+    
+    #also remove ending of :0:0 with :0 - happens when you update the name
+    end_long = ':0:0'
+    end_short = ''
+
+    #model duplicates the naming convention after second '/', do the same
+    to_dup = ['/stem/','/conv_tower/','/transformer/',
+              '/mha/','/conv_block/','/conv_tower/',
+              '/mlp/','/pointwise_conv_block/',
+              '_layer/linear/','/normalization/','/batch_norm/layer_norm/',
+              '/downres/','/cross_replica_batch_norm/',
+              '/exponential_moving_average/',
+              '/normalization/layer_norm/',
+              '/pooling/softmax_pooling/',
+              '/conv_block/conv_block/batch_norm/batch_norm/',
+              '/pointwise_conv_block/pointwise_conv_block/batch_norm/batch_norm/',
+              'conv_block/batch_norm/batch_norm/',
+    ] + ['/transformer_block_'+str(i)+'/'
+         for i in range(11)]+['/downres_block_'+str(i)+'/' for i in range(11)]
+    dup_with = ['/stem/stem/','/conv_tower/conv_tower/','/transformer/transformer/',
+                '/mha/mha/','/conv_block/conv_block/','/conv_tower/conv_tower/',
+                '/mlp/mlp/','/pointwise_conv_block/pointwise_conv_block/',
+                '_layer/','/batch_norm/','/layer_norm/',
+                '/conv_tower/conv_tower/','/batch_norm/',
+                '/moving_mean/',
+                '/layer_norm/',
+                '/softmax_pooling/',
+                '/conv_block/conv_block/batch_norm/',
+                '/pointwise_conv_block/pointwise_conv_block/batch_norm/',
+                'conv_block/batch_norm/',
+    ] + ['/transformer_block_'+str(i)+'/transformer_block_'+str(i)+'/'
+                                for i in range(11)]+['/conv_tower_block_'+str(i)+'/conv_tower_block_'+str(i)+'/'
+                                                     for i in range(11)]
+        
+    for i in range(len(variable_nodes)):
+        new_name = variable_nodes[i].name
+        for j,dup_name in enumerate(to_dup):
+            if(dup_name in new_name):
+                new_name = new_name.replace(dup_name,dup_with[j])
+                #attention_k needs to match transformer_block_k
+                if('/transformer_block_' in dup_name):
+                    #also replace...
+                    if('/multihead_attention/' in new_name):
+                        new_name = new_name.replace('/multihead_attention/',
+                                                    '/attention_'+dup_name.rsplit('_', 1)[1])
+
+
+        new_name = new_name.replace(end_long,end_short)
+        variable_nodes[i]=tf.Variable(variable_nodes[i].value(),name=new_name)    
+
+    #update names
+    extrac_weight_names = [n.name for n in variable_nodes]
+    
+    #Note not all extracted weights will be in initialised since layers renamed
+
+    #issue is moving_variance is named moving_mean in the extracted weights 
+    #can't tell which ones should be variance and which mean as shape is the same so 
+    #using order to tell
+    #Approach: rename the second set of moving_mean to moving_variance (in chronological order)
+    extrac_weight_names = [n.name for n in variable_nodes]
+    init_enf_names = [n.name for n in enf_chopped.variables]
+    
+    #find those to be updated
+    #[n.name+' : '+str(i) for i,n in enumerate(variable_nodes)]
+    indices_change_var = [36,37,38,42,43,44,138,139,140,146,147,148,154,155,156,162,163,164,170,171,
+                          172,178,179,180,230,231,232,236,237,238,242,243,244,248,249,250,254,255,256,
+                          260,261,262
+                         ]
+    #also remove ending of :0:0 with :0 - happens when you update the name
+    end_long = ':0'
+    end_short = ''
+    for i in indices_change_var:
+        new_name = variable_nodes[i].name
+        #variance only there in keras model not snt
+        new_name = new_name.replace('moving_mean','moving_variance')
+        new_name = new_name.replace(end_long,end_short)
+        variable_nodes[i]=tf.Variable(variable_nodes[i].value(),name=new_name)
+
+    #update names
+    extrac_weight_names = [n.name for n in variable_nodes]
+    
+    #check they are matching
+    extrac_weight_names = [n.name+' : '+str(n.shape) for n in variable_nodes]
+    init_enf_names = [n.name+' : '+str(n.shape) for n in enf_chopped.variables]
+    
+    #we only want to update the matching layers in the trunk section
+    extrac_trunk_weight_names = [
+        layer for layer in extrac_weight_names if ('/trunk/' in layer and 
+                                                   '/final_pointwise/' not in layer)]
+
+    assert len(list(set(extrac_trunk_weight_names) - 
+                    set(init_enf_names)))==0, "Not all extracted weights are in initialised"
+    
+    #get names of model.trainable_variables so can return index
+    init_enf_train_names = [n.name+' : '+str(n.shape) for n in enf_chopped.trainable_variables]
+    
+    #great so now we can update the initiated model with the weights from the pre-trained
+    # for 1. Stem 2. Conv Tower 3. Transformer 4. Crop of trunk 
+    #get index where there is a match
+    trainable_variables = []
+    for init_i, variable in enumerate(enf_chopped.variables):
+        weight_name = variable.name + ' : ' + str(variable.shape)
+        #make sure only updating trunk weights from 1-4 above
+        if (weight_name in extrac_trunk_weight_names):
+            extrac_i = extrac_weight_names.index(weight_name)
+            variable_values = variable_nodes[extrac_i]
+            #update weight values
+            enf_chopped.variables[init_i].assign(variable_values)
+        #if freezing pre-trained layers, return other layers' indices
+        elif(weight_name in init_enf_train_names):
+            train_init_i = init_enf_train_names.index(weight_name)
+            trainable_variables.append(train_init_i)     
+            
+    return(enf_chopped)
 
 
 
@@ -411,7 +573,7 @@ import tensorflow as tf
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from dna_hist_mark_pred.constants import (
+from EnformerCelltyping.constants import (
     CHROMOSOMES,
     CELLS,
     ALLOWED_CELLS,
@@ -427,10 +589,7 @@ from dna_hist_mark_pred.constants import (
     H3K27ME3_DATA,
     H3K36ME3_DATA,
     MODEL_REFERENCE_PATH,
-    ENHANCER_MAP_DATA,
-    AVG_DATA_PATH,
-    METADATA_PATH,
-    AVG_ATAC_PTH
+    METADATA_PATH
 )
 
 
@@ -529,8 +688,6 @@ def get_path(cell: str, feature: str, pred_res: int) -> pathlib.Path:
         # Load feature path
         if feature in ["A", "C", "G", "T"]:
             return DNA_DATA[feature]
-        elif feature == "dnase_avg":
-            return DNASE_AVG_PATH
         elif feature == "chrom_access_embed":
             return AVG_DATA_PATH['atac']
         else: #main case, get avg
@@ -870,12 +1027,7 @@ def initiate_bigwigs(
             "Labels contain values which are not allowed. "
             f"Allowed labels are {ALLOWED_FEATURES}."
         )
-    # make sure dnase second last track and dnase_avg last track
-    # location necessary for operations
-    if all(np.isin(['dnase','dnase_avg'],features)):
-        features.append(features.pop(features.index('dnase')))
-        features.append(features.pop(features.index('dnase_avg')))
-    # make sure dnase_embed last track
+    # make sure chrom access embed last track
     # location necessary for operations
     if (np.isin(['chrom_access_embed'],features)):
         features.append(features.pop(features.index('chrom_access_embed')))      
@@ -1047,12 +1199,7 @@ def generate_data(
             "Lables contain values which are not allowed. "
             f"Allowed labels are {ALLOWED_FEATURES}."
         )
-    # make sure dnase second last track and dnase_avg last track
-    # location necessary for operations
-    if all(np.isin(['dnase','dnase_avg'],features)):
-        features.append(features.pop(features.index('dnase')))
-        features.append(features.pop(features.index('dnase_avg')))
-    # make sure dnase_embed last track
+    # make sure chrom access embed last track
     # location necessary for operations
     if (np.isin(['chrom_access_embed'],features)):
         features.append(features.pop(features.index('chrom_access_embed')))       
@@ -1153,7 +1300,6 @@ def generate_data(
                     dna_feat=False
                     
             #passes dna and data to represent cell types
-            #trying dnase signal minus avg dnase, so no separate track for the avg
             all_X = np.zeros(shape=(window_size + rand_shift_amt, len(features)-1))
             if len(features)==4: #just base pairs
                 all_X = np.zeros(shape=(window_size + rand_shift_amt, len(features)))                
@@ -1167,7 +1313,7 @@ def generate_data(
                 dna_start = window_start+(n_genomic_positions//2)-window_size//2    
             for i, feature in enumerate(features):
                 #load full window including rand_shift_amt so don't have to load twice
-                if(feature!='dnase_avg' and feature!='chrom_access_embed'):
+                if(feature!='chrom_access_embed'):
                     all_X[:, i] = data[selected_cell][feature].values(
                         selected_chromosome, dna_start, 
                         dna_start + window_size + rand_shift_amt,

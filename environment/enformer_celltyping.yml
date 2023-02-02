@@ -25,6 +25,7 @@ dependencies:
     - wandb
     #enformer dependencies
     - dm-sonnet==2.0.0
+    - sonnet==  
     - kipoiseq==0.5.2
     - tensorflow==2.5.0 
     - tensorflow-hub==0.11.0

@@ -1,9 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import os
-from EnformerCelltyping.utils import(gelu,
-                                     create_enf_chopped_model,
-                                     pearsonR)
+from EnformerCelltyping.utils import(gelu,pearsonR)
 
 def build_enf_celltyping(use_prebuilt_model: bool = True,
                          enf_celltyping_pth: str = None,

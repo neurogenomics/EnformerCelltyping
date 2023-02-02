@@ -42,9 +42,21 @@ environment:
 
 ```
  conda env create -f ./environment/enformer_celltyping.yml &&\
- conda activate EnformerCelltyping
+ conda activate EnformerCelltyping &&\
+ pip install -e .
 ```
 
+Next all use-cases for enformer involve transfer learnign from the enformer model
+(with frozen weights) so download this model from tensorflow hub:
+
+```
+mkdir data/enformer_model/ &&\
+cd data/enformer_model &&\
+wget -O enformer_model.tar.gz https://tfhub.dev/deepmind/enformer/1?tf-hub-format=compressed &&\
+tar xvzf enformer_model.tar.gz &&\
+rm enformer_model.tar.gz &&\
+cd ../../
+```
 
 ## Using Enformer Celltyping
 
