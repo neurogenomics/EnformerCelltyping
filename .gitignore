@@ -129,9 +129,16 @@ dmypy.json
 .pyre/
 
 #make sure data doesn't save
+checkpoint/*
+checkpoint/
+model_results/
+model_results/*
 data/h*
 data/e*
 data/a*
 data/t*
 data/q*
+data/l*
+data/s*
+data/m*
 data/dna*

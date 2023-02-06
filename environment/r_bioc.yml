@@ -1,0 +1,27 @@
+name: r_bioc
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+  - imperial-college-research-computing
+dependencies: 
+  - r-base=4.1
+  - r-cowplot
+  - r-ggplot2
+  - r-gplots
+  - r-rcolorbrewer 
+  - r-data.table
+  - r-wesanderson
+  - r-rmarkdown
+  - r-r.utils
+  - r-forcats
+  - r-knitr
+  - r-corrplot
+  - r-readxl 
+  - bioconductor-genomicranges
+  - bioconductor-rtracklayer
+  - bioconductor-gviz
+  - bioconductor-bsgenome.hsapiens.UCSC.hg19
+  - bioconductor-txdb.hsapiens.ucsc.hg19.knowngene
+  - bioconductor-sushi
+  - parallel  

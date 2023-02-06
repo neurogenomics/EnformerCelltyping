@@ -589,7 +589,8 @@ from EnformerCelltyping.constants import (
     H3K27ME3_DATA,
     H3K36ME3_DATA,
     MODEL_REFERENCE_PATH,
-    METADATA_PATH
+    METADATA_PATH,
+    AVG_DATA_PATH
 )
 
 
@@ -2955,7 +2956,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 np.savez(ref_atac_pth[0],chrom_access_250=ref_seq['chrom_access_gbl'])
                 #if using, need to load chrom access & dna
                 if not no_pred:
-                    ref_seq = {'dna':dat_dna[0],
+                    ref_seq = {'dna':dat_dna['dna'],
                                'chrom_access_250':ref_seq['chrom_access_gbl'],
                                'chrom_access_lcl':ref_seq['chrom_access_lcl']}
                     

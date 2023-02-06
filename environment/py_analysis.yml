@@ -1,0 +1,27 @@
+name: py_analysis
+channels:
+  - defaults
+  - pytorch  
+  - bioconda
+  - conda-forge
+dependencies:
+  - python=3.9
+  - pandas
+  - pyarrow
+  - seaborn
+  - ipykernel
+  - pybigwig
+  - requests   
+  - parallel
+  - pip
+  - pytorch
+  - pip:
+    - requests
+    - markdown
+    - CrossMap
+    - deeptools
+    - numpy
+    - tensorboard==2.2.2
+    - omegaconf
+    - wandb
+    - torchvision #pytorch CUDA 

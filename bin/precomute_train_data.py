@@ -92,12 +92,12 @@ if 'chrom_access_embed' in features and 'atac' in labels:
 #pre-trained Enformer takes wider DNA input and then just cuts it so this prop reflects that
 #this value gives the same amount of output values as enformer
 pred_prop = (128*896)/196_608 # centre proportion of base-pairs from input to return preds for
-window_size = 196_608
+window_size = 196_608 #dna window
 #embedding
 window_size_CA=1562*128 #local Chromatin Accessibility size
 #why so large? - https://www.pnas.org/doi/full/10.1073/pnas.0909344107 used 4k around TSS for promoter
 up_dwn_stream_bp=3_000#at every prot coding TSS in genome
-pred_resolution = 128#25
+pred_resolution = 128
 coverage_threshold = 0.125
 
 #Transform input data by passing through Enformer
@@ -298,10 +298,8 @@ for index, row in cov_reg.iterrows():
                                  reverse_complement=True,
                                  rand_seq_shift=True,
                                  rtn_y_avg = True,
-                                 chrom_access_delta = True,
                                  data_trans = enf#trans DNA now, quicker than in model
                                 ))
-
         #get id for cell
         cell_id = list(SAMPLE_NAMES)[SAMPLES.index(cell_i)]
         #save

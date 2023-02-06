@@ -46,8 +46,8 @@ environment:
  pip install -e .
 ```
 
-Next all use-cases for enformer involve transfer learnign from the enformer model
-(with frozen weights) so download this model from tensorflow hub:
+Next all use-cases for Enformer Celltpying involve transfer learning from the enformer 
+model (with frozen weights) so download this model from tensorflow hub:
 
 ```
 mkdir data/enformer_model/ &&\
@@ -74,11 +74,11 @@ Enformer Celltyping has two main use cases:
     
 ## Training Enformer Celltyping
 
-To understand how to train Enformer Celltyping on your own data, see XXXX which
-steps through training the model on the data from our manuscript.
-
-training_demo.ipynb
-full_training_recreation.ipynb
+To understand how to train Enformer Celltyping on your own data, see 
+[training_demo.ipynb](https://github.com/neurogenomics/EnformerCelltyping/blob/master/training_demo.ipynb) 
+which steps through training the model on demo data. Or see 
+[full_training_recreation.ipynb](https://github.com/neurogenomics/EnformerCelltyping/blob/master/full_training_recreation.ipynb) for the full set of scripts to download, preprocess and
+train Enformer Celltyping as outlined in our manuscript.
 
 
 ## Interpretting Enformer Celltyping    
