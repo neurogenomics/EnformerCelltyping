@@ -62,12 +62,14 @@ on [figshare](https://figshare.com/projects/Enformer_Celltyping/159143).
 
 ## Using Enformer Celltyping
 
-Enformer Celltyping has two main use cases:
-    1. You have ATAC-seq (bulk or scATAC-seq which you have pseudobulked) for
-    a cell type/tissue of interest and you would like to predict histone mark 
-    tracks for it. See XXXX to do this.
-    2. You are interested in predicting the effect of a genetic variant on 
-    histone mark predictions for a cell type/tissue of interest.
+Enformer Celltyping has two main usage categories:
+  1. You want to use the trained Enformer Celltyping model to predict. For example,
+     you may have ATAC-seq (bulk or scATAC-seq which you have pseudobulked) for
+     a cell type/tissue of interest and you would like to predict histone mark 
+     tracks for it. See `Interpretting Enformer Celltyping` section below for this 
+     and other uses for the trained Enformer Celltyping model.
+  2. You are interested in training an Enformer Celltyping model on your own data
+     so would like to see the trianing process. See `Training Enformer Celltyping`.
     
     
 ## Training Enformer Celltyping
@@ -82,7 +84,12 @@ train Enformer Celltyping as outlined in our manuscript.
 ## Interpretting Enformer Celltyping    
 
 To see all use cases for the pre-trained Enformer Celltyping model, see
-[using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb)
+[using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb).
+The use cases included are:
+  * Predict histone marks for a cell type of interest.
+  * Testing the receptive field of a model.
+  * Visualise Enformer Celltyping's cell type embedding.
+  * Predict the effect of a genetic variant.
 
 
 
