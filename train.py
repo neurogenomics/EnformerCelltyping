@@ -45,7 +45,7 @@ labels = HIST_MARKS  # prediction targets
 pred_resolution = 128  # window size must be divisible by prediciton resolution
 window_size_dna = 196_608 #Enformer input size
 batch_size = 128
-n_epochs = 10#0 #lower than in manuscript for speed
+n_epochs = 100 #lower than in manuscript for speed
 learning_rate = 0.0002 #target learning rate,matches enformer
 
 #remove dnase from pred if using in training

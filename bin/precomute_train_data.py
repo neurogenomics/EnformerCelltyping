@@ -212,6 +212,9 @@ if(not os.path.isfile(PROJECT_PATH / "checkpoint"/"reg_cov.csv.gz")):
     cov_reg.drop(cov_reg.columns.difference(['chr','pred_strt','pred_end',
                                    'dna_strt','dna_end','cell',
                                    'mark','value']), 1, inplace=True)
+    #create dir if doesn't exist already
+    from pathlib import Path
+    Path(PROJECT_PATH / "checkpoint").mkdir(parents=True, exist_ok=True)
     #save
     cov_reg.to_csv(PROJECT_PATH / "checkpoint"/"reg_cov.csv.gz",
                    index=False,compression='gzip')
@@ -259,6 +262,9 @@ train_cells = train_valid_samples[np.ix_(s_train_index)]
 # Validation
 valid_cells = train_valid_samples[np.ix_(s_valid_index)]
 
+#create dir if doesn't exist already
+from pathlib import Path
+Path(TRAIN_DATA_PATH).mkdir(parents=True, exist_ok=True)
 
 import datetime
 #loop through all training cells saving training data of each pred reg

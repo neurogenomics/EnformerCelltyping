@@ -652,48 +652,59 @@ def train_valid_split(chromosomes, chrom_len, samples, valid_frac, split):
             s_train_dist, s_valid_dist, c_train_dist, c_valid_dist)
 
 
-def get_path(cell: str, feature: str, pred_res: int) -> pathlib.Path:
+def get_path(cell: str, feature: str, 
+             pred_res: int, pth: str = '',
+             user_pths: bool = False) -> pathlib.Path:
     """Looks up path for given feature of a cell in the data paths"""
     # Get full length cell name from synonym
     #get key from value
-    try:
-        cell=list(CELLS.keys())[list(CELLS.values()).index(cell)]
-    except:
+    if not user_pths or cell == 'avg':
         if cell != 'avg':
-            print("cell not in trianing cells")
-    if cell != 'avg':
+            # Load feature path
+            if feature in ["A", "C", "G", "T"]:
+                return DNA_DATA[feature]
+            elif feature == "h3k27ac":
+                return H3K27AC_DATA[cell+'_'+str(pred_res)]
+            elif feature == "h3k4me1":
+                return H3K4ME1_DATA[cell+'_'+str(pred_res)]
+            elif feature == "h3k4me3":
+                return H3K4ME3_DATA[cell+'_'+str(pred_res)]
+            elif feature == "h3k9me3":
+                return H3K9ME3_DATA[cell+'_'+str(pred_res)]
+            elif feature == "h3k27me3":
+                return H3K27ME3_DATA[cell+'_'+str(pred_res)]
+            elif feature == "h3k36me3":
+                return H3K36ME3_DATA[cell+'_'+str(pred_res)]
+            elif feature == "chrom_access_embed":
+                return ATAC_DATA[cell+'_'+str(pred_res)]
+            elif feature == "atac":
+                return ATAC_DATA[cell+'_'+str(pred_res)]
+            else:
+                raise ValueError(
+                    f"Feature {feature} not allowed. Allowed features are {ALLOWED_FEATURES}"
+                )
+        else: #average wanted
+            # Load feature path
+            if feature in ["A", "C", "G", "T"]:
+                return DNA_DATA[feature]
+            elif feature == "chrom_access_embed":
+                return AVG_DATA_PATH['atac']
+            else: #main case, get avg
+                return AVG_DATA_PATH[feature]
+    else:#user passed the path to the bigwig file with the cell        
+        #this option is only to load chromatin accessibility and DNA
         # Load feature path
         if feature in ["A", "C", "G", "T"]:
             return DNA_DATA[feature]
-        elif feature == "h3k27ac":
-            return H3K27AC_DATA[cell+'_'+str(pred_res)]
-        elif feature == "h3k4me1":
-            return H3K4ME1_DATA[cell+'_'+str(pred_res)]
-        elif feature == "h3k4me3":
-            return H3K4ME3_DATA[cell+'_'+str(pred_res)]
-        elif feature == "h3k9me3":
-            return H3K9ME3_DATA[cell+'_'+str(pred_res)]
-        elif feature == "h3k27me3":
-            return H3K27ME3_DATA[cell+'_'+str(pred_res)]
-        elif feature == "h3k36me3":
-            return H3K36ME3_DATA[cell+'_'+str(pred_res)]
         elif feature == "chrom_access_embed":
-            return ATAC_DATA[cell+'_'+str(pred_res)]
+            return pth
         elif feature == "atac":
-            return ATAC_DATA[cell+'_'+str(pred_res)]
+            return pth
         else:
             raise ValueError(
-                f"Feature {feature} not allowed. Allowed features are {ALLOWED_FEATURES}"
+                f"Feature {feature} not allowed when passing file paths, use `./EnformerCelltyping/constants.py` instead."
             )
-    else: #average wanted
-        # Load feature path
-        if feature in ["A", "C", "G", "T"]:
-            return DNA_DATA[feature]
-        elif feature == "chrom_access_embed":
-            return AVG_DATA_PATH['atac']
-        else: #main case, get avg
-            return AVG_DATA_PATH[feature]
-
+            
 def load_bigwig(path: Union[os.PathLike, str], decode: bool = False):
     """Loads bigwig from a pathlike object"""
     path = str(path)
@@ -989,16 +1000,18 @@ def initiate_bigwigs(
     features: Sequence[str] = ["A", "C", "G", "T","chrom_access_embed"],
     labels: Sequence[str] = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
     pred_res: int = 128,
-    load_avg=True
+    load_avg=True,
+    user_pths=False,
 ):
     """
     Initiate the connection to the bigwigs
     
     Arguments:
         cells:
-            List of all cells to be used for randomly sampling a cell-pos.
-            Just pass the cell of interest in a list if loading a known 
-            position.
+            List of all cells to be used. Just pass the cell of interest in a list if 
+            loading a known position. Also pass a dictionary with file path if just 
+            loading chromatin acessibility and DNA to pass to Enformer Celltyping for
+            predictions, also set `user_pths=True`
         cell_probs:
             List of probabilitie of randomly choosing cells, should be same 
             length as cells. Just pass [1] if using a known position for 
@@ -1016,6 +1029,10 @@ def initiate_bigwigs(
             Predicted resolution of the output (Y) data.
         load_avg:
             Whether to laod the average from the training cell types.
+        user_pths:
+            Whether to get the paths for the data files from the constants file 
+            (`./EnformerCelltyping/constants.py`) - False or from the user on 
+            input - True.
     """
     # Input verification
     if not all(np.isin(features, ALLOWED_FEATURES)):
@@ -1034,7 +1051,10 @@ def initiate_bigwigs(
         features.append(features.pop(features.index('chrom_access_embed')))      
     
     if load_avg:
-        cells = np.append(cells,'avg')
+        if not user_pths: #if list, i.e. getting paths from constants.py
+            cells = np.append(cells,'avg')
+        else: #user passed paths so is a dict    
+            cells['avg'] = 'a/fake/pth' #path for avg will be taken from constants.py still
         cell_probs = np.append(cell_probs,1)
     
     assert len(cells) == len(cell_probs), "Must provide probabilities for all cells"
@@ -1042,25 +1062,35 @@ def initiate_bigwigs(
         chromosome_probs
     ), "Must provide probabilities for all chromosomes"
     assert len(features) > 0, "Must provide at least one feature"
-    assert len(labels) > 0, "Must provide at least one label"
     
     # Load file handles for all cells and features
-    data = {
-        cell: {
-            feature:load_bigwig(get_path(cell, feature, pred_res))
-            for feature in features + labels
+    if not user_pths:
+        data = {
+            cell: {
+                feature:load_bigwig(get_path(cell, feature, pred_res))
+                for feature in features + labels
+            }
+            for cell in cells
         }
-        for cell in cells
-    }
+    else: #user gave dict with paths too
+        data = {
+            cell: {
+                feature:load_bigwig(get_path(cell, feature, pred_res,
+                                             pth, user_pths))
+                for feature in features + labels
+            }
+            for cell,pth in cells.items()
+        }
     return data
-
+    
+    
 
 def generate_data(
     cells: Sequence[str],
-    cell_probs: Sequence[float],
-    chromosomes: Sequence[str],
-    chromosome_probs: Sequence[float],
     data: dict,    
+    cell_probs: Sequence[float] = np.repeat(1, 1),
+    chromosomes: Sequence[str] = CHROMOSOMES,
+    chromosome_probs: Sequence[float] = np.repeat(1, len(CHROMOSOMES)),
     features: Sequence[str] = ["A", "C", "G", "T","chrom_access_embed"],
     labels: Sequence[str] = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
     num_samps: int = 1,
@@ -1104,7 +1134,7 @@ def generate_data(
             one cell.
         chromosomes:
             List of chromosomes to be used if randomly sampling.
-        cell_probs:
+        chromosome_probs:
             List of probabilities of randomly choosing chromosomes, should be 
             same length as chromosomes.
         features:
@@ -1117,7 +1147,7 @@ def generate_data(
         num_samps:
             Number of samples to generate.
         window_size:
-            Window size of DNA input. This is the same as Enforme byt default.
+            Window size of DNA input. This is the same as Enformer by default.
         pred_res:
             Predicted resolution of the output (Y) data.
         arcsin_trans:
@@ -1205,7 +1235,9 @@ def generate_data(
     if (np.isin(['chrom_access_embed'],features)):
         features.append(features.pop(features.index('chrom_access_embed')))       
     assert len(features) > 0, "Must provide at least one feature"
-    assert len(labels) > 0, "Must provide at least one label"
+    
+    if len(cells)>1 and len(cell_probs)==1:
+        np.repeat(1, len(cells))
     
     # At each generator iteration:
     while True:
@@ -1411,7 +1443,13 @@ def generate_data(
                     axis=1)))
                 embed_X.append(cell_embed)
                 embed_X.append(cell_embed_shift)    
-
+            else:
+                #only passing org input without rand shift input
+                X.append(all_X)
+                #embedding - only pass once
+                if (np.isin(['chrom_access_embed'],features)):
+                    embed_X.append(cell_embed)
+                    embed_X_gbl.append(cell_embed_gbl)
             # y data (labels)
             #work out buffer where preds won't be made
             buffer_bp,target_length,target_bp = create_buffer(window_size=window_size,
@@ -1550,11 +1588,12 @@ def generate_data(
                       },rand_shift_amt)
                 else:
                     yield({"dna":tf.concat(samps_X,axis=0),
-                       "chrom_access":tf.concat(samps_embed,axis=0),
+                       "chrom_access_lcl":tf.concat(samps_embed,axis=0),
+                       "chrom_access_gbl":tf.concat(samps_embed_gbl,axis=0)
                       })
                     
 
-                    
+
 class generate_sample:
     
     """
@@ -1563,28 +1602,102 @@ class generate_sample:
     
     Used as a wrapper for generate_data
     
+    Arguments:
+        cells:
+            Dictionary containing the cell name and file path to the chormatin
+            acessibility bigWig. This should only be used when `return_y=FALSE`. 
+            **OR** A List of all cells to be used. Just pass the cell of interest 
+            in a list if loading a known position.
+        chromosomes:
+            List of chromosomes to be used if randomly sampling.
+        features:
+            List of input features (X).
+        labels:
+            List of output labels i.e. histone marks to predict (Y).
+        window_size_dna:
+            Window size of DNA input. This is the same as Enformer by default.
+        pred_res:
+            Predicted resolution of the output (Y) data.
+        arcsin_trans:
+            Boolean, whether Y should be arcsine tranformed to help account for
+            differences in sequencing depths of studies for Y values.
+        debug:
+            Boolean, give informative print statements throughout function. Useful
+            for debugging.
+        reverse_complement:
+            Boolean, should the reverse compliment of the X and Y values also be returned with
+            the data?
+        rand_seq_shift:
+            Boolean, should a randomly shifted version of the X and Y be returned as well as the 
+            original data? Not ethe random shift amount will be between 1-3 bp and the Y and 
+            chromosome accedssibility data will also be shifted along with the DNA data.
+        rand_seq_shift_amt:
+            Pass random shift amount to use if you don't want it to be generated - used to replicate
+            other runs.
+        rtn_rand_seq_shift_amt:
+            Whether to return the rand_seq_shift_amt value form the data loader.
+        pred_prop: 
+            The proportion of the input DNA window that is predicted by the model. These types of models
+            don't predict in the edge of the input window since it won't have enough information upstream 
+            and downstream to make an accurate prediction. This proportion is equal to that of Enformer's 
+            by default: (128*896)/196_608.
+        chro:
+            Chromosome if going with a pre-designated position.
+        pos:
+            Position if going with a pre-designated position. This position will form the start of DNA 
+            input.
+        cell:
+            Cell if going with a pre-designated position. This position will form the start of DNA 
+            input.
+        window_size_CA:
+            Number of base-pairs to use for the local Chromatin Accessibility information. This will be 
+            wrapped around the DNA window so that the DNA window is centered in it.
+        return_y:
+            Boolean, whether to return Y or just input (X) data - this will speed up function if only X is 
+            needed.
+        data_trans:
+            Should the DNA input (X) data be transformed by passing through the pre-trained and chopped 
+            Enformer model? Pass this model to do it. The benefit would be the training/predicting requires
+            less RAM than doing so in the model itself.
+        snp_pos: 
+            If imputing a SNP in the DNA data, what position to impute it, relative to the dna start 
+            position?
+        snp_base:
+            If imputing a SNP in the DNA data, what nucleotide do you want to impute?    
     """
     def __init__(self,
                  cells,
-                 chromosomes,
-                 features,
-                 labels,
-                 window_size_dna,
-                 pred_res,
-                 arcsin_trans,
-                 reverse_complement,
-                 rand_seq_shift,
-                 pred_prop,
-                 window_size_CA,
+                 chromosomes = CHROMOSOMES,
+                 features = ["A", "C", "G", "T","chrom_access_embed"],
+                 labels = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
+                 window_size_dna = 196_608,
+                 pred_res = 128,
+                 arcsin_trans = False,
+                 reverse_complement = False,
+                 rand_seq_shift = False,
+                 pred_prop = (128*896)/196_608,
+                 window_size_CA = 1562*128,
                  return_y=True,
                  data_trans=False,
                  rtn_rand_seq_shift_amt=False,
                  debug = False
                 ):
         self.cells = cells
+        if return_y==True and type(cells)==dict:
+            return_y=False
+            if debug:
+                print('Forcing return_y=False, since you can''t use inputted paths in cells with return_y=True')
+        user_pths = False
+        if type(cells)==dict:
+            user_pths = True
+        self.user_pths = user_pths
         self.chromosomes = chromosomes
         self.features = features
         self.labels = labels
+        if self.user_pths and len(labels)>0:
+            self.labels = [] #only load X data
+            if debug:
+                print('Forcing removal of histone marks, since you can''t use inputted paths in cells with histone marks')
         self.window_size_dna = window_size_dna
         self.pred_res = pred_res
         self.arcsin_trans = arcsin_trans
@@ -1596,19 +1709,19 @@ class generate_sample:
         self.return_y = return_y
         self.data_trans = data_trans
         self.rtn_rand_seq_shift_amt = rtn_rand_seq_shift_amt
-        self.load_avg=False
         #Need delta so load the avg chrom access to minus from act
         self.load_avg=True
         #only initiate connection to bigwigs once, saves on memory
-        self.data = initiate_bigwigs(cells=cells,
+        self.data = initiate_bigwigs(cells=self.cells,
                                      cell_probs=np.repeat(1, len(cells)),
-                                     chromosomes=chromosomes,
+                                     chromosomes=self.chromosomes,
                                      chromosome_probs=np.repeat(1, 
                                                                 len(chromosomes)),
-                                     features=features,
-                                     labels=labels,
-                                     pred_res=pred_res,
-                                     load_avg = self.load_avg)
+                                     features=self.features,
+                                     labels=self.labels,
+                                     pred_res=self.pred_res,
+                                     load_avg = self.load_avg,
+                                     user_pths = self.user_pths)
         
     def load(self,
              chro: str,pos: int, cell: str,
@@ -1646,8 +1759,7 @@ class generate_sample:
                             rand_pos = False,
                             cell_probs=np.repeat(1,len(self.cells)),
                             chromosome_probs = np.repeat(1,
-                                                         len(self.chromosomes)),
-                            training = False
+                                                         len(self.chromosomes))
                             ))
         return(dat)
 
@@ -1904,7 +2016,7 @@ def pred_region(model, cell, pos, the_chr, WINDOW,
                     
                     
                     
-def plot_tracks(tracks1, tracks2, tracks3, 
+def plot_tracks(tracks1, tracks2, tracks3 = None, 
                 the_chr='', strt_bp = '', end_bp='',cell='', 
                 labels = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
                 tracks4 = None, 
@@ -1928,13 +2040,16 @@ def plot_tracks(tracks1, tracks2, tracks3,
     plt.figure(figsize=figsize)
     plt.rc('ytick', labelsize=16)
     
-    num_rows = len(labels)*3
+    num_rows = len(labels)*2
     num_cols = 1
 
     row_height = 4
     space_height = 4
 
-    num_sep_rows = lambda x: int((x-1)/3)
+    num_sep_rows = lambda x: int((x-1)/2)
+    if tracks3 is not None:
+        num_rows = len(labels)*3
+        num_sep_rows = lambda x: int((x-1)/3)
     if tracks4 is not None:
         num_rows = len(labels)*4
         num_sep_rows = lambda x: int((x-1)/4)
@@ -1954,7 +2069,30 @@ def plot_tracks(tracks1, tracks2, tracks3,
     
     y_limits = [4.9, 4.9, 4.9, 4.9, 4.9, 4.9]#[4, 4, 4, 4, 4, 4]
     i = 0
-    if tracks4 is None:
+    #two tracks    
+    if tracks3 is None:
+        for y_limit, title, y, y2 in zip(y_limits, labels, tracks1.T, tracks2.T):
+            p1 = ax[i].fill_between(np.linspace(0, len(y), num=len(y)), y, 
+                                    color=extended_palette[0])
+            p2 = ax[i+1].fill_between(np.linspace(0, len(y2), num=len(y2)), y2,
+                                      color=extended_palette[1])
+
+            if same_y:
+                ax[i].set_ylim([0, y_limit])
+                ax[i+1].set_ylim([0, y_limit])
+
+            ax[i].set_title(title, fontsize=15)
+            ax[i+1].set_xticklabels([])
+            sns.despine(top=True, right=True, bottom=True)
+            i += 2
+        ax[0].legend(
+            [p1, p2],
+            [nme_p1, nme_p2],
+            bbox_to_anchor=(0.62, 1.6, 0.5, 0.5),
+            fontsize=12
+        )
+    #three tracks
+    elif tracks4 is None:
         for y_limit, title, y, y2, y3 in zip(y_limits, labels, tracks1.T, 
                                              tracks2.T, tracks3.T):
             p1 = ax[i].fill_between(np.linspace(0, len(y), num=len(y)), y, 
@@ -1979,7 +2117,6 @@ def plot_tracks(tracks1, tracks2, tracks3,
             bbox_to_anchor=(0.62, 1.6, 0.5, 0.5),
             fontsize=12
         )
-    
     else: #add atac too
         for y_limit, title, y, y2, y3, y4 in zip(y_limits, labels, tracks1.T, 
                                              tracks2.T, tracks3.T, tracks4.T):
@@ -2086,7 +2223,26 @@ def plot_signal(track, labels,
     if save_plot is not None:
         plt.savefig(save_plot,bbox_inches='tight')
 
-
+def plot_signal(tracks, interval, height=1.5,
+                pal=["#9A8822","#F5CDB4","#F8AFA8",
+                    "#FDDDA0","#74A089","#85D4E3"]):
+    """
+    Simple plot function for the output of the Enformer
+    Celltyping prediction or another similar signal.
+    """
+    fig, axes = plt.subplots(len(tracks), 1, figsize=(20, height * len(tracks)), sharex=True)
+    i=0
+    for ax, (title, y) in zip(axes, tracks.items()):
+        ax.fill_between(np.linspace(interval['start'], 
+                                    interval['end'], 
+                                    num=len(y)), y,
+                       color=pal[i])
+        ax.set_title(title)
+        sns.despine(top=True, right=True, bottom=True)
+        i+=1
+    
+    ax.set_xlabel(f"{interval['cell']} {interval['chro']}-{interval['start']}:{interval['end']}")
+    plt.tight_layout()
         
 def measure_receptive_field(model, seq_length: int = 196_608,
                             window_size_lcl: int = 1562*128,

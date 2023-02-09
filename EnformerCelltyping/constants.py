@@ -166,6 +166,13 @@ H3K27ME3_DATA = {path.stem: path for path in DATA_PATH.glob("h3k27me3/*")}
 H3K36ME3_DATA = {path.stem: path for path in DATA_PATH.glob("h3k36me3/*")}
 
 DNA = ["A", "C", "G", "T"]
+#DNA input same as Enformer - DNA input window, ~100kbp either side
+WINDOW_SIZE_DNA = 196_608
+#Local chromatin accessibilty input size, ~100kbp either side
+WINDOW_SIZE_LCL_CA = 1562*128
+#Target BP of prediciton window 
+TARGET_BP = 896*128
+
 REF_GEN = "hg19"
 ALLOWED_FEATURES = ["A", "C", "G", "T", "chrom_access_embed","h3k27ac", "h3k4me1",
 		    "h3k4me3","h3k9me3","h3k27me3","h3k36me3","atac","atac_avg"]
@@ -174,6 +181,7 @@ CHROMOSOME_DATA = {
     chromosome: length for chromosome, length in zip(CHROMOSOMES, CHROM_LEN)
 }
 HIST_MARKS = ["h3k27ac", "h3k4me1","h3k4me3","h3k9me3","h3k27me3","h3k36me3","atac"]
+PRED_HIST_MARKS = ["h3k27ac", "h3k4me1","h3k4me3","h3k9me3","h3k27me3","h3k36me3"]
 AVG_DATA_PATH = dict(zip(HIST_MARKS, [h3k27ac_AVG_PATH,h3k4me1_AVG_PATH,h3k4me3_AVG_PATH,
                                       h3k9me3_AVG_PATH,h3k27me3_AVG_PATH,h3k36me3_AVG_PATH,
                                       ATAC_AVG_PATH]))

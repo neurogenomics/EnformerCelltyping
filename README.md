@@ -37,30 +37,28 @@ Once `conda` is installed, place the `conda` executable in `PATH`, use the follo
 command to create an environment named EnformerCelltyping with all necessary 
 dependencies and activate it. **Note** this may take some time to complete:
 
-Create the environment using the yml file, then activate the 
-environment:
+Create the necessary environments using the yml file, then activate the 
+Enformer Celltyping environment:
 
 ```
- conda env create -f ./environment/enformer_celltyping.yml &&\
- conda activate EnformerCelltyping &&\
- pip install -e .
+conda env create -f ./environment/enformer_celltyping.yml &&\
+make env &&\
+conda activate EnformerCelltyping &&\
+pip install -e .
 ```
 
-Next all use-cases for Enformer Celltpying involve transfer learning from the enformer 
-model (with frozen weights) so download this model from tensorflow hub:
+Next all use-cases for Enformer Celltyping involve transfer learning from the enformer 
+model (with frozen weights) and require some other files to run. Also, if you want to use
+the trained version of Enformer Celltyping, the weights will need to be downloaded. So 
+download these with the following with the EnformerCelltyping conda env activated:
 
 ```
-mkdir data/enformer_model/ &&\
-cd data/enformer_model &&\
-wget -O enformer_model.tar.gz https://tfhub.dev/deepmind/enformer/1?tf-hub-format=compressed &&\
-tar xvzf enformer_model.tar.gz &&\
-rm enformer_model.tar.gz &&\
-cd ../../
+python bin/download_Enformer_Celltyping_dependencies.py
 ```
 
-Model ref data
-
-Enformer Celltyping model
+See [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb)
+for a detailed explanation of all of these files. Downloaded data can also be viewed at source
+on [figshare](https://figshare.com/projects/Enformer_Celltyping/159143).
 
 ## Using Enformer Celltyping
 
@@ -83,6 +81,8 @@ train Enformer Celltyping as outlined in our manuscript.
 
 ## Interpretting Enformer Celltyping    
 
+To see all use cases for the pre-trained Enformer Celltyping model, see
+[using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb)
 
 
 

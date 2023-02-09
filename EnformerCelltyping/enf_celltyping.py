@@ -226,6 +226,9 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
 #set model values ---------
 #DNA input same as Enformer - DNA input window, ~100kbp either side
 WINDOW_SIZE_DNA = 196_608
+#Local chromatin accessibilty input size, ~100kbp either side
+WINDOW_SIZE_LCL_CA = 1562*128
+
 #output from chopped enformer model
 ENF_CHANNELS = 1536
 ENF_PRED_POS = 896

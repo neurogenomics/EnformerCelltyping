@@ -133,6 +133,11 @@ checkpoint/*
 checkpoint/
 model_results/
 model_results/*
+enformer_celltyping/
+enformer_celltyping/*
+EnformerCelltyping/enformer_celltyping_weights
+EnformerCelltyping/enformer_celltyping_weights\
+EnformerCelltyping/enformer_celltyping_weights\*
 data/h*
 data/e*
 data/a*
@@ -142,3 +147,4 @@ data/l*
 data/s*
 data/m*
 data/dna*
+data/demo/Nott19_Microglia_128.bigWig

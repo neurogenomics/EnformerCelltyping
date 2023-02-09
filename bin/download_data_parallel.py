@@ -180,8 +180,6 @@ def download_bigwigs(exp_type: str) -> None:
     df = pd.read_csv(METADATA_PATH / '{exp_type}.csv'.format(exp_type=exp_type),
             sep=',')
     #convert to list
-    #urls = df['Link'].to_list()
-    #names = df['Name'].to_list()
     name_urls = df.values.tolist()
     folder_name = DATA_PATH / '{exp_type}'.format(exp_type=exp_type)
     #create parallel use all cpus
@@ -206,6 +204,34 @@ def download_blacklist_regions() -> None:
     blck_list = ("encode_blacklist.bigBed",
             "https://www.encodeproject.org/files/ENCFF000KJP/@@download/ENCFF000KJP.bigBed")
     download_file(blck_list,folder_name,extension=False)
+    
+def download_enformer() -> None:
+    """
+    Downloads the enformer model from Tensorflow Hub
+    """
+    folder_name = DATA_PATH
+    enf_mod = ("enformer_model.tar.gz",
+                "https://tfhub.dev/deepmind/enformer/1?tf-hub-format=compressed")
+    download_file(enf_mod,folder_name,extension=False)
+    #now unzip
+    tar = tarfile.open(str(DATA_PATH / 'enformer_model.tar.gz'), 'r:gz')
+    # create destination dir if it does not exist
+    if os.path.isdir(str(DATA_PATH / 'enformer_model')) == False:
+        os.mkdir(str(DATA_PATH / 'enformer_model'))
+    tar.extractall(str(DATA_PATH / 'enformer_model'))
+    tar.close()
+    #delete tar file
+    os.remove(str(DATA_PATH / 'enformer_model.tar.gz'))
+
+def download_avg_chromatin_accessibility() -> None:
+    """
+    Downloads the average singal of chromatin accessibility
+    for the 103 EpiMap, training cell types.
+    """
+    folder_name = DATA_PATH / 'model_ref'
+    avg_atac = ("avg_atac",
+                "https://figshare.com/ndownloader/files/39111956")
+    download_file(avg_atac,folder_name)      
 
 if __name__ == '__main__':
     print(datetime.now())
@@ -222,5 +248,9 @@ if __name__ == '__main__':
     get_sldp_dependencies.get_sldp_dependencies(ref_data_path)
     #download encode blacklist regions
     download_blacklist_regions()
+    #download enformer from tensorflow hub
+    download_enformer()
+    #download avg chromatin accessibility bigWigs
+    download_avg_chromatin_accessibility()
     print("All downloads complete")
     print(datetime.now())
