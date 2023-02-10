@@ -170,8 +170,15 @@ DNA = ["A", "C", "G", "T"]
 WINDOW_SIZE_DNA = 196_608
 #Local chromatin accessibilty input size, ~100kbp either side
 WINDOW_SIZE_LCL_CA = 1562*128
+#PanglaoDB 1216 marker genes, 3k around TSS
+WINDOW_SIZE_GBL_CA = 1216*3_000
+#chaneels in output of enf chopped model
+ENF_CHANNELS = 1536
+#number of predicted positions
+ENF_PRED_POS = 896
 #Target BP of prediciton window 
 TARGET_BP = 896*128
+
 
 REF_GEN = "hg19"
 ALLOWED_FEATURES = ["A", "C", "G", "T", "chrom_access_embed","h3k27ac", "h3k4me1",

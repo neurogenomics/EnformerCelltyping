@@ -22,4 +22,6 @@ for Enformer Celltyping.
   for each histone mark and chromatin accessibilty (ATAC-seq)
 * calculate_avg_track.py - calculate the average signal for the inputted epigenetic mark
   based on training cells
-
+* run_sldp.py - script to run [SLDP](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6202062/)
+  on genetic variants relating to a given phenotype to look for directional effect. Need a
+  GWAS sumstats file and a model's predictions of effect of the SNP (like Enformer Celltyping).
