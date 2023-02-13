@@ -1848,10 +1848,14 @@ class PreSavedDataGen(tf.keras.utils.Sequence):
 from tqdm import tqdm
 import copy
 import math
-
+         
 def pred_region(model, cell, pos, the_chr, WINDOW,
-                features,labels,pred_resolution,
-                window_size_dna,window_size_CA,pred_prop,
+                features = ["A", "C", "G", "T","chrom_access_embed"],
+                labels=['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
+                pred_resolution=128,
+                window_size_dna=196_608,
+                window_size_CA=1562*128,
+                pred_prop = (128*896)/196_608,
                 data_trans_model: bool = False,
                 return_arcsinh: bool = False,
                 include_atac: bool = False):
@@ -2702,11 +2706,11 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
                                                  'snp_pos','pred_strt',
                                                  'pred_end'])
     tmp['col'] = np.where(tmp['variable'].isin(['pred_strt','pred_end']), 
-                          'Out', 'In')
+                          'Pred Wind', 'Input Wind')
     #update colour so snp different
     tmp['colour'] = np.where(tmp['variable'].isin(['snp_pos']), 
                              len(set(tmp['id'])), tmp['id'])
-    g = sns.FacetGrid(tmp, col="id",hue="colour",col_wrap=5)
+    g = sns.FacetGrid(tmp, col="id",hue="colour",col_wrap=len(dna_strt))
     #g = plt.scatter(y=tmp['value'], x=tmp['col'],c=tmp['id'])
     g.map(sns.scatterplot, 'col', 'value')
     # There is no labels, need to define the labels
@@ -2719,6 +2723,12 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
     g.map(plt.axhline, 
           y=pos + window_size_dna//2, 
           ls='--', c='red')
+    g.set_axis_labels("")
+    g.set_axis_labels(x_var="", y_var="Genomic location")
+    g.set_titles("Prediction {col_name}")
+    #format genomic position numbers
+    for axes in g.axes.flat:
+        axes.set_yticklabels(['{:,.1f}'.format(x) + 'M' for x in axes.get_yticks()/1_000_000])
     return g
        
     
@@ -2800,7 +2810,17 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
     
     #validate inputs
     assert alt in ['A','C','G','T'], "Alt must be one of 'A','C','G','T'"
-
+    
+    if not data_generator.reverse_complement:
+        print('Need reverse complement of sequence to predict effect, setting to True in data loader')
+        data_generator.reverse_complement = True
+    if not data_generator.rand_seq_shift:
+        print('Need random sequence shift to predict effect, setting to True in data loader')
+        data_generator.rand_seq_shift = True
+    if not data_generator.rtn_rand_seq_shift_amt:
+        print('Need to return random sequence shift to predict effect, setting to True in data loader')
+        data_generator.rtn_rand_seq_shift_amt = True
+    
     def effect_func_sum(a1,a2,axis=0):
         return np.sum(a1-a2,axis=axis)
     def absmax(a,b):
@@ -2831,9 +2851,6 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
     buffer_bp,target_length,target_bp = create_buffer(window_size=window_size_dna,
                                                       pred_res=pred_resolution,
                                                       pred_prop= pred_prop)
-    
-    #get cell id from name
-    cell_id = list(CELLS.keys())[list(CELLS.values()).index(cell)]
 
     #load reference data, predict ref and alt and concat
     wind_size_pred_ref = []
