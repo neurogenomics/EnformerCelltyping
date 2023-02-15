@@ -1099,6 +1099,7 @@ def generate_data(
     arcsin_trans: bool = True,
     debug: bool = False,
     reverse_complement=False,
+    dna_embed_pth=None,
     rand_seq_shift=False,
     rand_seq_shift_amt=None,
     rtn_rand_seq_shift_amt=False,
@@ -1159,6 +1160,9 @@ def generate_data(
         reverse_complement:
             Boolean, should the reverse compliment of the X and Y values also be returned with
             the data?
+        dna_embed_pth:
+            Path to precomputed DNA embeddings (saved as npz files) - see [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb)
+            None by default which will compute them in the model or in the data generator on the fly.    
         rand_seq_shift:
             Boolean, should a randomly shifted version of the X and Y be returned as well as the 
             original data? Not ethe random shift amount will be between 1-3 bp and the Y and 
@@ -1230,6 +1234,9 @@ def generate_data(
             "Lables contain values which are not allowed. "
             f"Allowed labels are {ALLOWED_FEATURES}."
         )
+    #check path exists
+    if dna_embed_pth is not None:
+        assert os.path.isdir(dna_embed_pth),"Path to DNA Embed folder is not valid."
     # make sure chrom access embed last track
     # location necessary for operations
     if (np.isin(['chrom_access_embed'],features)):
@@ -1344,14 +1351,23 @@ def generate_data(
             else:
                 #window_start is for n_genomic_pos, we want to centre the DNA on that
                 dna_start = window_start+(n_genomic_positions//2)-window_size//2    
+            loaded_dna_embed_pth = False
             for i, feature in enumerate(features):
                 #load full window including rand_shift_amt so don't have to load twice
                 if(feature!='chrom_access_embed'):
-                    all_X[:, i] = data[selected_cell][feature].values(
-                        selected_chromosome, dna_start, 
-                        dna_start + window_size + rand_shift_amt,
-                        numpy=True
-                    )
+                    if (dna_embed_pth is not None and 
+                        os.path.exists(dna_embed_pth+f"/{selected_chromosome}_{dna_start}.npz") and 
+                        not loaded_dna_embed_pth):
+                        dna_embed = np.load(dna_embed_pth+f"/{selected_chromosome}_{dna_start}.npz")
+                        all_X = dna_embed['dna'][0,:,:]
+                        loaded_dna_embed_pth = True
+                    elif not loaded_dna_embed_pth:    
+                        all_X[:, i] = data[selected_cell][feature].values(
+                            selected_chromosome, dna_start, 
+                            dna_start + window_size + rand_shift_amt,
+                            numpy=True
+                        )
+                    #else: #already loaded DNA from disk, do nothing
                 #if using cell type embedding
                 elif(feature=='chrom_access_embed'):
                     # Make tracks for diff resolutions
@@ -1403,6 +1419,9 @@ def generate_data(
                     cell_embed = cell_embed - np.arcsinh(np.float32(np.mean(#enformer works with float32 not 64
                         np.nan_to_num(chrom_access_avg).reshape(-1, pred_res),#bp res
                         axis=1)))
+            #print message if file not found in precomputed data
+            if not loaded_dna_embed_pth and dna_embed_pth is not None:
+                print(f"DNA embed file not found for chro_strt {selected_chromosome}_{dna_start}")
             #check if we need to impute a snp
             if snp_pos is not None:
                 #get one-hot encoded version
@@ -1550,7 +1569,7 @@ def generate_data(
                     samps_avg_y.append(tf.stack([np.float32(tf.convert_to_tensor(y_i.copy())) for y_i in y_avg]))
         
         #apply Enformer transformation
-        if data_trans != False and dna_feat:
+        if data_trans != False and dna_feat and not loaded_dna_embed_pth:
             trans_samps_X = []
             for dna in samps_X:
                 trans_samps_X.append(data_trans.predict_on_batch(dna))
@@ -1631,6 +1650,9 @@ class generate_sample:
             Boolean, should a randomly shifted version of the X and Y be returned as well as the 
             original data? Not ethe random shift amount will be between 1-3 bp and the Y and 
             chromosome accedssibility data will also be shifted along with the DNA data.
+        dna_embed_pth:
+            Path to precomputed DNA embeddings (saved as npz files) - see [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb)
+            None by default which will compute them in the model or in the data generator on the fly.
         rand_seq_shift_amt:
             Pass random shift amount to use if you don't want it to be generated - used to replicate
             other runs.
@@ -1675,6 +1697,7 @@ class generate_sample:
                  arcsin_trans = False,
                  reverse_complement = False,
                  rand_seq_shift = False,
+                 dna_embed_pth = None,
                  pred_prop = (128*896)/196_608,
                  window_size_CA = 1562*128,
                  return_y=True,
@@ -1710,6 +1733,7 @@ class generate_sample:
         self.window_size_CA = window_size_CA
         self.return_y = return_y
         self.data_trans = data_trans
+        self.dna_embed_pth = dna_embed_pth
         self.rtn_rand_seq_shift_amt = rtn_rand_seq_shift_amt
         #Need delta so load the avg chrom access to minus from act
         self.load_avg=True
@@ -1761,7 +1785,8 @@ class generate_sample:
                             rand_pos = False,
                             cell_probs=np.repeat(1,len(self.cells)),
                             chromosome_probs = np.repeat(1,
-                                                         len(self.chromosomes))
+                                                         len(self.chromosomes)),
+                            dna_embed_pth = self.dna_embed_pth     
                             ))
         return(dat)
 

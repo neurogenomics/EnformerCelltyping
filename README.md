@@ -50,7 +50,7 @@ pip install -e .
 Next all use-cases for Enformer Celltyping involve transfer learning from the enformer 
 model (with frozen weights) and require some other files to run. Also, if you want to use
 the trained version of Enformer Celltyping, the weights will need to be downloaded. So 
-download these with the following with the EnformerCelltyping conda env activated:
+download these with the following with the `EnformerCelltyping` conda env activated:
 
 ```
 python bin/download_Enformer_Celltyping_dependencies.py

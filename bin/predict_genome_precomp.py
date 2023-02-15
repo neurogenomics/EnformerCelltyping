@@ -11,7 +11,9 @@ def get_args():
     parser.add_argument('-p', '--path_chrom_access', default="", type=str, 
                         help='Path to chromatin accessability for the cell type')
     parser.add_argument('-o', '--output_dir', default="", type=str, help='Path to output')
-    parser.add_argument('-b', '--batch_size', default=4, type=int, help='Number of predictions to make in one pass')    
+    parser.add_argument('-b', '--batch_size', default=4, type=int, help='Number of predictions to make in one pass')
+    parser.add_argument('-d', '--dna_embed_dir', default="./data/dna_embed", type=str, 
+                        help='Path to output for DNA embeddings') 
     args = parser.parse_args()
     return args
 
@@ -19,6 +21,7 @@ args=get_args()
 
 cell = args.cell.strip()
 out_pth = args.output_dir.strip()
+dna_embed_pth = args.dna_embed_dir.strip()
 chrom_access_pth = args.path_chrom_access.strip()
 #predict in batches for speed
 batch_size = args.batch_size
@@ -35,9 +38,16 @@ from EnformerCelltyping.constants import PROJECT_PATH
 #import the data generator which will take care of any preprocessing
 from EnformerCelltyping.utils import generate_sample
 
+#Transform DNA input data by passing through Enformer
+#less memory intensive than using map() on data generator
+from EnformerCelltyping.utils import create_enf_chopped_model
+enf = create_enf_chopped_model(str(PROJECT_PATH / "data/enformer_model"))#path to enformer model
+
 #data generator class for samples
 data_generator = generate_sample(
     cells = {cell:chrom_access_pth}, #should be a dict
+    dna_embed_pth = dna_embed_pth,
+    data_trans = enf
     )
 
 #load Enformer celltyping model
@@ -49,8 +59,7 @@ from EnformerCelltyping.constants import PRED_HIST_MARKS
 
 hist_marks = PRED_HIST_MARKS
 
-model = Enformer_Celltyping(enf_path=str(PROJECT_PATH / "data/enformer_model"),#path to enformer model
-                            use_prebuilt_model=True,
+model = Enformer_Celltyping(use_prebuilt_model=True,
                             enf_celltyping_pth = str(PROJECT_PATH /'EnformerCelltyping'/'enformer_celltyping_weights')
                            )
 #compile loaded model
