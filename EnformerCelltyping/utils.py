@@ -2958,4 +2958,442 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
             eff.append(effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:]))
         agg_eff = np.mean(np.vstack(eff),axis=0)
         return(agg_eff)
+    
+    
+def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
+                            dna_strt: list, snp_pos: list,
+                            data_generator: tf.data.Dataset,
+                            checkpoint_pth: str,#or list
+                            no_pred: bool = False,
+                            effect_mode: str = 'both',
+                            window_size_dna: int = 196_608,
+                            window_size_CA: int = 1562*128,
+                            pred_prop: float = (128*896)/196_608,
+                            pred_resolution: int = 128,
+                            debug: bool = True):
+    """
+    Measure the effect of a SNP on the model's predictions:
+    (1) Measure calculated peaks of model with ref allele
+    (2) Measure calculated peaks of model with alt allele
+    (3) Calculate the effective change caused by the SNP
+    (4) All calcs will be done with rev comp and small rand perms
+    (5) Aggregate so there is one effective change per SNP.
+    
+    NOTE - Enformer when conducting this, centred the SNP in DNA input. 
+    This means they don't utilise the full 100kbp in either direction 
+    since the prediction window is (896*128)/2 = 57344 in either direction.
+    We don't want to fall into the same trap since our prediction window is 
+    even smaller. To avoid this, we will centre input on SNP then gradually 
+    move off centre so output window makes up the full input window size. 
+    This is done in the create_ref_alt_DNA_window() function. The effective
+    change of the resulting window is tested here.
+    
+    Differs to predict_snp_effect_sldp as it converts DNA in the data loader
+    and saves ref and alt input as checkpoints so it doesn't need to be rerun
+    when ona. new cell type. Slower up front but quicker when looking at more
+    than 1 cell type per sumstats (or multi sumstats).
+    
+    Arguments:
+        model:
+            Model to calculate the SNP effect on.
+        cell:
+            Cell Name to predict on, must match the data generator.
+        alt:
+            Alternative (A2) allele to measure the effect of. 
+            Should be one of A,T,C,G and shouldn't match the 
+            reference (A1) allele.
+        chro:
+            Chromosome for DNA sequence. Should be formatted as
+            chr1-22.    
+        dna_strt: 
+            Start positions for DNA sequence so predicitons 
+            are made for the full window size based on the 
+            SNP.
+        snp_pos:
+            SNP position relative to the DNA start position so 
+            predicitons are made for the full window size based 
+            on the SNP.
+        data_generator:
+            Data generator to load data from the specific cell type
+            to predict the SNP effect on. See generate_sample which
+            is a wrapper for generate_data() for an example of an 
+            appropriate data generator.
+        checkpoint_pth:
+            Where to look for and save loaded files to speed up SNP
+            effect predicitions. Can handle one or multiple file paths.
+            If multiple past, first will be used for future checkpoint
+            saves.
+        no_pred:
+            Bool indicating whether predictions should be made, if not 
+            the function is only useful to save the positions in the
+            checkpoint folder to speed up future runs.
+        effect_mode:
+            Aggregating calculated effects can aggregate the bp 
+            level effective change by sum or max for the QTL, 
+            default is to sum.
+        window_size_dna: 
+            Window size of DNA input for the model. Default is 
+            196_608 - Enformer's DNA window size.
+        window_size_CA: 
+            Window size of chromatin accessibility input for the model. 
+            Default is 1562*128 - Enformer Celltyping's local chromatin
+            accessibility window size.
+        pred_prop:
+            Centred proportion of base-pairs that the model predicts.
+            This is necessary since these models predict in a funnel
+            style in that every position has a buffer of DNA on 
+            either side to make the prediction. Default is 
+            (128*896)/196_608.
+        pred_resolution:
+            The resolution (number of base-pairs averaged) at which the 
+            model predicts. Default is 128bp, Enformer Celltyping's 
+            predicted resolution. 
+        debug:
+            Bool, whether messages should be printed to give more insight 
+            into the run. For example, the dna embeddings for the snp 
+            positions can be precomputed and the related npz files can 
+            sometimes fail when being loaded. If this happens, it is 
+            important to know which file failed so it can be deleted so 
+            the script will recreate it.
+    Returns:
+        The effective change in peaks related to the SNP aggregated for 
+        the model's output channels.
+    """
+    
+    #validate inputs
+    assert alt in ['A','C','G','T'], "Alt must be one of 'A','C','G','T'"
+
+    def effect_func_sum(a1,a2,axis=0):
+        return np.sum(a1-a2,axis=axis)
+    def absmax(a,b):
+        return (np.where(np.abs(a) > np.abs(b), a, b))
+
+    def effect_func_max(a1,a2,axis=0):
+        a = np.max(a1-a2,axis=axis)
+        b = np.min(a1-a2,axis=axis)
+        return absmax(a,b)
+    
+    def effect_func_max_sum(a1,a2,axis=0):
+        a = np.max(a1-a2,axis=axis)
+        b = np.min(a1-a2,axis=axis)
+        return(absmax(a,b),
+               np.sum(a1-a2,axis=axis))
+    
+    def load_gbl_atac_ref(link):
+        """
+        sometimes when running mutliple in parallel, multiple
+        scripts referencing the one np file causes an error.
+        Use try catch to instead load a copy of the file if this
+        happens.
+        """
+        try:
+            dat = np.load(DATA_PATH/"sldp/checkpoint/CD4T_ATAC1.npz")
+        except:
+            #get link of copied version
+            link_copy = os.path.splitext(link)[0]+'_2.npz'
+            print(f"Failed to load ref global atac,trying copy {link_copy}")
+            dat = np.load(link_copy)
+        return(dat)    
+
+    effect_mode = effect_mode.lower()
+
+    if effect_mode=='sum':
+        effect_func = effect_func_sum
+    elif effect_mode=='max':
+        effect_func = effect_func_max
+    elif effect_mode=='both':
+        effect_func = effect_func_max_sum    
+    assert effect_mode in ['sum','max','both'], 'Unknown effect function, use sum, max or both.'
+    
+    #calc the actual base-pairs
+    buffer_bp,target_length,target_bp = create_buffer(window_size=window_size_dna,
+                                                      pred_res=pred_resolution,
+                                                      pred_prop= pred_prop)
+    
+    #get cell id from name
+    cell_id = list(CELLS.keys())[list(CELLS.values()).index(cell)]
+    
+    #if user inputs one checkpoint path as str, make a list
+    if isinstance(checkpoint_pth, str):
+        checkpoint_pth = [checkpoint_pth]
+
+    #load reference data, predict ref and alt and concat
+    ref_seq_dna_all = []
+    ref_seq_prom_all = []
+    ref_seq_lcl_all = []
+    alt_seq_dna_all = []
+    alt_seq_prom_all = []
+    alt_seq_lcl_all = []
+    for ind,strt_i in enumerate(dna_strt):
+        #calc local chrom access start from dna start
+        lcl_CA_strt_i = strt_i + ((window_size_dna-window_size_CA)//2)
+        pos_i = snp_pos[ind]
+        ref_pth = [i+f'/{chro}_{strt_i}.npz' for i in checkpoint_pth]
+        ref_atac_pth = [i+f'/{cell_id}_ATAC.npz' for i in checkpoint_pth]
+        ref_atac_lcl_pth = [i+f'/{lcl_CA_strt_i}_ATAC_lcl.npz' for i in checkpoint_pth]
+        alt_pth = [i+f'/{chro}_{strt_i}_{alt}_{pos_i}.npz' for i in checkpoint_pth]
+        any_ref = any([os.path.isfile(x) for x in ref_pth])
+        any_ref_atac = any([os.path.isfile(x) for x in ref_atac_pth])
+        any_ref_atac_lcl = any([os.path.isfile(x) for x in ref_atac_lcl_pth])
+        #only generate if not saved
+        if (not any_ref) or (not any_ref_atac) or (not any_ref_atac_lcl):
+            #DNA
+            if not any_ref:
+                #don't bother loading chrom access - speed
+                ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              return_chrom_access=False)
+                rand_seq_shift_amt = ref_all[1]
+                ref_seq = ref_all[0]
+                #save for next time
+                np.savez(ref_pth[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+            # local & global chromatin accessibility signature
+            if (not any_ref_atac_lcl) or (not any_ref_atac):
+                #get rand shift amnt from dna
+                ref_pth_fnd = [i for (i, v) in zip(ref_pth,
+                                                   [os.path.isfile(x) for x in ref_pth]) if v]
+                dat_dna = np.load(ref_pth_fnd[0])
+                rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
+                #don't bother loading dna - speed
+                if debug:
+                    print("pos",strt_i)
+                    print("chro",chro)
+                    print("cell",cell)
+                    print("rand_seq_shift_amt",rand_seq_shift_amt)
+                ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              rand_seq_shift_amt=rand_seq_shift_amt,
+                                              return_dna=False)
+                ref_seq = ref_all[0]
+                #save for next time
+                # local chromatin accessibility signature
+                np.savez(ref_atac_lcl_pth[0],chrom_access_lcl=ref_seq['chrom_access_lcl'])
+                # global chromatin accessibility signature
+                np.savez(ref_atac_pth[0],chrom_access_250=ref_seq['chrom_access_gbl'])
+                #if using, need to load chrom access & dna
+                if not no_pred:
+                    ref_seq = {'dna':dat_dna['dna'],
+                               'chrom_access_250':ref_seq['chrom_access_gbl'],
+                               'chrom_access_lcl':ref_seq['chrom_access_lcl']}
+                    
+        else:
+            if not no_pred:
+                #get pth for it
+                ref_pth_fnd = [i for (i, v) in zip(ref_pth,
+                                                   [os.path.isfile(x) for x in ref_pth]) if v]
+                ref_atac_pth_fnd = [i for (i, v) in zip(ref_atac_pth, 
+                                                        [os.path.isfile(x) for x in ref_atac_pth]) if v]
+                ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
+                                                            [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
+                if debug:
+                    print('ref_pth_fnd '+ ref_pth_fnd[0])
+                dat_dna = np.load(ref_pth_fnd[0])
+                if debug:
+                    print('ref_atac_pth_fnd '+ ref_atac_pth_fnd[0])
+                dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
+                if debug:
+                    print('ref_atac_lcl_pth_fnd '+ ref_atac_lcl_pth_fnd[0])
+                dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                ref_seq = {'dna':dat_dna['dna'],
+                           'chrom_access_250':dat_atac['chrom_access_250'],
+                           'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
+                rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
+                del dat_dna 
+        #Now impute SNP for alt
+        #pass same rand shift amount
+        #only generate if not saved
+        any_alt = any([os.path.isfile(x) for x in alt_pth])
+        if (not any_alt): #or (not any_ref_atac):
+            #need rand_seq_shift_amt from ref so need to load it if it isn't already
+            if 'rand_seq_shift_amt' not in locals():
+                #get pth for it
+                ref_pth_fnd = [i for (i, v) in zip(ref_pth,
+                                                   [os.path.isfile(x) for x in ref_pth]) if v]
+                print(ref_pth_fnd[0])
+                dat_dna = np.load(ref_pth_fnd[0])
+                rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
+            ref_atac_pth = [i+f'/{cell_id}_ATAC.npz' for i in checkpoint_pth]
+            ref_atac_lcl_pth = [i+f'/{lcl_CA_strt_i}_ATAC_lcl.npz' for i in checkpoint_pth]
+            any_ref_atac = any([os.path.isfile(x) for x in ref_atac_pth])
+            any_ref_atac_lcl = any([os.path.isfile(x) for x in ref_atac_lcl_pth])    
+            if (not any_ref_atac) or (not any_ref_atac_lcl):    
+                print('Error: This should have been created in ref if statements, not again in alt')
+                print(fail)
+            if not any_alt:
+                #don't bother loading chrom access - speed
+                alt_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              snp_pos=pos_i,snp_base=alt,
+                                              rand_seq_shift_amt=rand_seq_shift_amt,
+                                              return_chrom_access=False)
+                alt_seq = alt_all[0]
+                #save for next time
+                np.savez(alt_pth[0],dna=alt_seq)
+                #if using, need to load chrom access
+                if not no_pred:
+                    if 'dat_atac' not in locals():
+                        #get pth for it
+                        ref_atac_pth_fnd = [i for (i, v) in zip(ref_atac_pth, 
+                                                                [os.path.isfile(x) for x in ref_atac_pth]) if v]
+                        dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
+                    if 'dat_atac_lcl' not in locals():
+                        #get pth for it
+                        ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
+                                                            [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
+                        dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])    
+                    alt_seq = {'dna':alt_seq,
+                               'chrom_access_250':dat_atac['chrom_access_250'],
+                               'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
+                    del dat_atac, dat_atac_lcl
+        else:
+            if not no_pred:
+                #get pth for it
+                alt_pth_fnd = [i for (i, v) in zip(alt_pth, 
+                                                   [os.path.isfile(x) for x in alt_pth]) if v]
+                print('alt_pth_fnd '+ alt_pth_fnd[0])
+                dat_dna = np.load(alt_pth_fnd[0])
+                if 'dat_atac' not in locals():
+                    #get pth for it
+                    ref_atac_pth_fnd = [i for (i, v) in zip(ref_atac_pth, 
+                                                            [os.path.isfile(x) for x in ref_atac_pth]) if v]
+                    print('ref_atac_pth_fnd for alt '+ ref_atac_pth_fnd[0])
+                    dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
+                if 'dat_atac_lcl' not in locals():
+                        #get pth for it
+                        ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
+                                                            [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
+                        dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])    
+                alt_seq = {'dna':dat_dna['dna'],
+                               'chrom_access_250':dat_atac['chrom_access_250'],
+                               'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
+                del dat_atac, dat_dna, dat_atac_lcl 
+        if not no_pred: #don't waste time predicting if not necessary
+            ref_seq_dna_all.append(ref_seq['dna'])
+            ref_seq_prom_all.append(ref_seq['chrom_access_250'])
+            ref_seq_lcl_all.append(ref_seq['chrom_access_lcl'])
+            alt_seq_dna_all.append(alt_seq['dna'])
+            alt_seq_prom_all.append(alt_seq['chrom_access_250'])
+            alt_seq_lcl_all.append(alt_seq['chrom_access_lcl'])
+            if ind == (len(dna_strt)-1):
+                #too memory intensive to pred all at once so split
+                del ref_seq,alt_seq
+                num_preds = 1
+                ref_seq_all_1 = {"dna":tf.concat(ref_seq_dna_all,axis=0),
+                                 "chrom_access_gbl":tf.concat(ref_seq_prom_all,axis=0),
+                                 "chrom_access_lcl":tf.concat(ref_seq_lcl_all,axis=0),
+                                }
+                del ref_seq_dna_all,ref_seq_prom_all,ref_seq_lcl_all
+                alt_seq_all_1 = {"dna":tf.concat(alt_seq_dna_all,axis=0),
+                                 "chrom_access_gbl":tf.concat(alt_seq_prom_all,axis=0),
+                                 "chrom_access_lcl":tf.concat(alt_seq_lcl_all,axis=0)
+                              }
+                del alt_seq_dna_all,alt_seq_prom_all,alt_seq_lcl_all
+                #Now both ref and alt are ready to be passed to model
+                pred_ref = model.predict(ref_seq_all_1,return_arcsinh = False)
+                pred_alt = model.predict(alt_seq_all_1,return_arcsinh = False)
+                #Need to know that there needs to be a first and last i.e. one wasn't removed because 
+                #too close to an edge
+                max_num_pos = 1 + math.ceil((window_size_dna-target_bp)/(target_bp/2))
+                #get index of centred snp pos
+                centre_ind = np.where([i == window_size_dna//2 for i in snp_pos])[0][0]
+                #check if upstream or downstream missing
+                up_miss = False
+                down_miss = False
+                if len(dna_strt)<max_num_pos and centre_ind<math.ceil(max_num_pos/2)-1:
+                    up_miss=True
+                if len(dna_strt)<max_num_pos and centre_ind==math.ceil(max_num_pos/2)-1:
+                    down_miss=True  
+                #now calc for edges if present  
+                #edge prediction region results may need to be chopped if overlap previous
+                #this will be the case when the target bp region isn't a mutliple of the input 
+                #region
+                #this will be the first and last region - NOTE dna start positions must be in order
+                if(dna_strt[1]-dna_strt[0]<target_bp):
+                    #first so chop end
+                    #remember 3 and 4 are rev comp so take from start not end
+                    chop_bp = target_bp-(dna_strt[1]-dna_strt[0])
+                    chop_pos = chop_bp//pred_resolution
+                    pred_ref_first = np.concatenate((pred_ref[0:2,0:target_length-chop_pos,:], 
+                                                     pred_ref[2:4,chop_pos:target_length,:]), 
+                                                    axis=0)
+                    pred_ref = pred_ref[4:,:,:]
+                    pred_alt_first = np.concatenate((pred_alt[0:2,0:target_length-chop_pos,:], 
+                                                     pred_alt[2:4,chop_pos:target_length,:]), 
+                                                    axis=0)
+                    pred_alt = pred_alt[4:,:,:]
+                if(dna_strt[len(dna_strt)-1]-dna_strt[len(dna_strt)-2]<target_bp):    
+                    #last so chop start
+                    #remember 3 and 4 are rev comp so take from start not end
+                    chop_bp = target_bp-(dna_strt[len(dna_strt)-1]-dna_strt[len(dna_strt)-2])
+                    chop_pos = chop_bp//pred_resolution
+                    lst_len = pred_alt.shape[0]
+                    pred_ref_last = np.concatenate((pred_ref[0:2,chop_pos:target_length,:], 
+                                                    pred_ref[2:4,0:target_length-chop_pos,:]), 
+                                                   axis=0)
+                    pred_ref = pred_ref[:lst_len-4,:,:]
+                    #pred_alt_last = np.concatenate((pred_alt[lst_len-5:lst_len-3,
+                    #                                         chop_pos:target_length,:], 
+                    #                           pred_alt[lst_len-3:lst_len-1,0:target_length-chop_pos,:]), 
+                    #                          axis=0)
+                    pred_alt_last = np.concatenate((pred_alt[0:2,chop_pos:target_length,:], 
+                                                    pred_alt[2:4,0:target_length-chop_pos,:]), 
+                                                   axis=0)
+                    pred_alt = pred_alt[:lst_len-4,:,:]
+                del ref_seq_all_1,alt_seq_all_1
+                
+                #combine so the full window size is together
+                wind_size_pred_ref = []
+                wind_size_pred_alt = []
+                #take every 4th channel
+                n = pred_ref.shape[0]//4
+                out_c = pred_ref.shape[2]
+                pos_pred = pred_ref.shape[1]
+                #norm
+                wind_size_pred_ref.append(tf.reshape(pred_ref[::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                wind_size_pred_alt.append(tf.reshape(pred_alt[::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                #rand perm
+                wind_size_pred_ref.append(tf.reshape(pred_ref[1:,:,:][::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                wind_size_pred_alt.append(tf.reshape(pred_alt[1:,:,:][::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                #rev comp
+                wind_size_pred_ref.append(tf.reshape(pred_ref[2:,:,:][::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                wind_size_pred_alt.append(tf.reshape(pred_alt[2:,:,:][::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                #rev comp + rand perm
+                wind_size_pred_ref.append(tf.reshape(pred_ref[3:,:,:][::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                wind_size_pred_alt.append(tf.reshape(pred_alt[3:,:,:][::4,:,:],
+                                                     (1,pos_pred*n,out_c)))
+                print("saved....")
+    if no_pred:#don't waste time predicting if not necessary
+        return(None)
+    #combine to 4 dim for each
+    wind_size_pred_ref = tf.concat(wind_size_pred_ref,axis=0)
+    wind_size_pred_alt = tf.concat(wind_size_pred_alt,axis=0)
+    #first check if first and last modified and append first
+    if(dna_strt[1]-dna_strt[0]<target_bp and not up_miss):
+        wind_size_pred_ref = tf.concat([pred_ref_first,wind_size_pred_ref],axis=1)
+        wind_size_pred_alt = tf.concat([pred_alt_first,wind_size_pred_alt],axis=1)
+    if(dna_strt[len(dna_strt)-1]-dna_strt[len(dna_strt)-2]<target_bp and not down_miss):
+        wind_size_pred_ref = tf.concat([wind_size_pred_ref,pred_ref_last],axis=1)
+        wind_size_pred_alt = tf.concat([wind_size_pred_alt,pred_alt_last],axis=1)
+    #Now aggregate the SNP effect based on chosen method
+    #loop for each of org, rand perm, rev comp and average
+    if effect_mode=='both':
+        eff_max = []
+        eff_sum = []
+        for i in range(wind_size_pred_ref.shape[0]):
+            max_i,sum_i = effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:])
+            eff_max.append(max_i)
+            eff_sum.append(sum_i)
+        agg_eff_max = np.mean(np.vstack(eff_max),axis=0)    
+        agg_eff_sum = np.mean(np.vstack(eff_sum),axis=0)
+        return(agg_eff_max,agg_eff_sum)
+    else:    
+        eff=[]        
+        for i in range(wind_size_pred_ref.shape[0]):
+            eff.append(effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:]))
+        agg_eff = np.mean(np.vstack(eff),axis=0)
+        return(agg_eff)    
 
