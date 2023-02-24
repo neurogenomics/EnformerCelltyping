@@ -1,0 +1,36 @@
+Neutrophil	-	mono_K27AC
+Monocyte	-	mono_K27AC
+TCell	-	mono_K27AC
+STOMACH1	-	mono_K27AC
+LEG MUSCLE	-	mono_K27AC
+PANCREAS	-	mono_K27AC
+Neutrophil	-	mono_K4ME1
+Monocyte	-	mono_K4ME1
+TCell	-	mono_K4ME1
+STOMACH1	-	mono_K4ME1
+LEG MUSCLE	-	mono_K4ME1
+PANCREAS	-	mono_K4ME1
+Neutrophil	-	neut_K27AC
+Monocyte	-	neut_K27AC
+TCell	-	neut_K27AC
+STOMACH1	-	neut_K27AC
+LEG MUSCLE	-	neut_K27AC
+PANCREAS	-	neut_K27AC
+Neutrophil	-	neut_K4ME1
+Monocyte	-	neut_K4ME1
+TCell	-	neut_K4ME1
+STOMACH1	-	neut_K4ME1
+LEG MUSCLE	-	neut_K4ME1
+PANCREAS	-	neut_K4ME1
+Neutrophil	-	tcel_K27AC
+Monocyte	-	tcel_K27AC
+TCell	-	tcel_K27AC
+STOMACH1	-	tcel_K27AC
+LEG MUSCLE	-	tcel_K27AC
+PANCREAS	-	tcel_K27AC
+Neutrophil	-	tcel_K4ME1
+Monocyte	-	tcel_K4ME1
+TCell	-	tcel_K4ME1
+STOMACH1	-	tcel_K4ME1
+LEG MUSCLE	-	tcel_K4ME1
+PANCREAS	-	tcel_K4ME1

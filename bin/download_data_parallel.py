@@ -154,12 +154,6 @@ def qtl() -> None:
     and then converts them to parquet files
     """
     txt_files = download_qtl()
-    #Don't convert to parquet yet - preprocessing necessary first, need to liftover to GRCh38 from 37
-    #Very memory intensive so didn't parellelise
-    #for file_name in txt_files:
-    #    file_path = './data_download/qtl_tmp/' + file_name
-    #    print("Converting {file_name} to parquet".format(file_name=file_name))
-    #    pq_file = convert_to_parquet(file_path, ' ', 'data_download/qtl/')
 
 
 def download_bigwigs(exp_type: str) -> None:

@@ -2545,8 +2545,8 @@ def _run_mut_enformer(model, mutation_pos: int,
 def create_ref_alt_DNA_window(chro: str, pos: int,
                               window_size_dna: int = 196_608,
                               window_size_CA: int = 1562*128,
-                              pred_prop: float = (128*896)/196_608,#0.113,
-                              pred_resolution: int = 128):#25):
+                              pred_prop: float = (128*896)/196_608,
+                              pred_resolution: int = 128):
     """
     Get the start positions for the DNA sequences to pass to 
     model data generator to cover window size of predicitons
@@ -2959,7 +2959,7 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
         agg_eff = np.mean(np.vstack(eff),axis=0)
         return(agg_eff)
     
-    
+
 def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                             dna_strt: list, snp_pos: list,
                             data_generator: tf.data.Dataset,
@@ -2969,8 +2969,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                             window_size_dna: int = 196_608,
                             window_size_CA: int = 1562*128,
                             pred_prop: float = (128*896)/196_608,
-                            pred_resolution: int = 128,
-                            debug: bool = True):
+                            pred_resolution: int = 128):
     """
     Measure the effect of a SNP on the model's predictions:
     (1) Measure calculated peaks of model with ref allele
@@ -3047,14 +3046,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         pred_resolution:
             The resolution (number of base-pairs averaged) at which the 
             model predicts. Default is 128bp, Enformer Celltyping's 
-            predicted resolution. 
-        debug:
-            Bool, whether messages should be printed to give more insight 
-            into the run. For example, the dna embeddings for the snp 
-            positions can be precomputed and the related npz files can 
-            sometimes fail when being loaded. If this happens, it is 
-            important to know which file failed so it can be deleted so 
-            the script will recreate it.
+            predicted resolution.   
     Returns:
         The effective change in peaks related to the SNP aggregated for 
         the model's output channels.
@@ -3087,7 +3079,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         happens.
         """
         try:
-            dat = np.load(DATA_PATH/"sldp/checkpoint/CD4T_ATAC1.npz")
+            dat = np.load(link)
         except:
             #get link of copied version
             link_copy = os.path.splitext(link)[0]+'_2.npz'
@@ -3146,6 +3138,18 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 ref_seq = ref_all[0]
                 #save for next time
                 np.savez(ref_pth[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                #if using, need to load chrom access lcl and global
+                if any_ref_atac_lcl and any_ref_atac:
+                    ref_atac_pth_fnd = [i for (i, v) in zip(ref_atac_pth, 
+                                                            [os.path.isfile(x) for x in ref_atac_pth]) if v]
+                    ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
+                                                                [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
+                    dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
+                    dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                    if not no_pred:
+                        ref_seq = {'dna':ref_seq,
+                                   'chrom_access_250':dat_atac['chrom_access_250'],
+                                   'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
             # local & global chromatin accessibility signature
             if (not any_ref_atac_lcl) or (not any_ref_atac):
                 #get rand shift amnt from dna
@@ -3154,11 +3158,6 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 dat_dna = np.load(ref_pth_fnd[0])
                 rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
                 #don't bother loading dna - speed
-                if debug:
-                    print("pos",strt_i)
-                    print("chro",chro)
-                    print("cell",cell)
-                    print("rand_seq_shift_amt",rand_seq_shift_amt)
                 ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
                                               rand_seq_shift_amt=rand_seq_shift_amt,
                                               return_dna=False)
@@ -3167,7 +3166,11 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 # local chromatin accessibility signature
                 np.savez(ref_atac_lcl_pth[0],chrom_access_lcl=ref_seq['chrom_access_lcl'])
                 # global chromatin accessibility signature
-                np.savez(ref_atac_pth[0],chrom_access_250=ref_seq['chrom_access_gbl'])
+                if not any_ref_atac:
+                    np.savez(ref_atac_pth[0],chrom_access_250=ref_seq['chrom_access_gbl'])
+                    #also save copy since there can be issues with multiple files accessing
+                    np.savez(os.path.splitext(ref_atac_pth[0])[0]+'_2.npz',
+                             chrom_access_250=ref_seq['chrom_access_gbl'])
                 #if using, need to load chrom access & dna
                 if not no_pred:
                     ref_seq = {'dna':dat_dna['dna'],
@@ -3183,20 +3186,46 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                                                         [os.path.isfile(x) for x in ref_atac_pth]) if v]
                 ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
                                                             [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
-                if debug:
-                    print('ref_pth_fnd '+ ref_pth_fnd[0])
-                dat_dna = np.load(ref_pth_fnd[0])
-                if debug:
-                    print('ref_atac_pth_fnd '+ ref_atac_pth_fnd[0])
+                
+                #add try catch since this can fail
+                try:
+                    dat_dna = np.load(ref_pth_fnd[0])
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue np.load npz - {ref_pth_fnd[0]}, delete, load and save again')
+                    ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              return_chrom_access=False)
+                    rand_seq_shift_amt = ref_all[1]
+                    ref_seq = ref_all[0]
+                    #save for next time
+                    np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                    dat_dna = {}
+                    dat_dna['dna'] = ref_seq
+                    del ref_seq, rand_seq_shift_amt, ref_all
+                    
                 dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
-                if debug:
-                    print('ref_atac_lcl_pth_fnd '+ ref_atac_lcl_pth_fnd[0])
                 dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
-                ref_seq = {'dna':dat_dna['dna'],
+                
+                #add try catch since this can fail
+                try:
+                    dna_ref = dat_dna['dna']
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue getting dna from npz - {ref_pth_fnd[0]}, delete, load and save again')
+                    ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              return_chrom_access=False)
+                    rand_seq_shift_amt = ref_all[1]
+                    ref_seq = ref_all[0]
+                    #save for next time
+                    np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                    dna_ref = ref_seq
+                    del ref_seq, rand_seq_shift_amt, ref_all
+                
+                ref_seq = {'dna':dna_ref,
                            'chrom_access_250':dat_atac['chrom_access_250'],
                            'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
                 rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
-                del dat_dna 
+                del dat_dna, dna_ref  
         #Now impute SNP for alt
         #pass same rand shift amount
         #only generate if not saved
@@ -3207,7 +3236,6 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 #get pth for it
                 ref_pth_fnd = [i for (i, v) in zip(ref_pth,
                                                    [os.path.isfile(x) for x in ref_pth]) if v]
-                print(ref_pth_fnd[0])
                 dat_dna = np.load(ref_pth_fnd[0])
                 rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
             ref_atac_pth = [i+f'/{cell_id}_ATAC.npz' for i in checkpoint_pth]
@@ -3247,23 +3275,55 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 #get pth for it
                 alt_pth_fnd = [i for (i, v) in zip(alt_pth, 
                                                    [os.path.isfile(x) for x in alt_pth]) if v]
-                print('alt_pth_fnd '+ alt_pth_fnd[0])
-                dat_dna = np.load(alt_pth_fnd[0])
+                #add try catch since this can fail
+                try:
+                    dat_dna = np.load(alt_pth_fnd[0])
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue np.load npz - {alt_pth_fnd[0]}, delete, load and save again')
+                    alt_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              snp_pos=pos_i,snp_base=alt,
+                                              rand_seq_shift_amt=rand_seq_shift_amt,
+                                              return_chrom_access=False)
+                    alt_seq = alt_all[0]
+                    #save for next time
+                    np.savez(alt_pth_fnd[0],dna=alt_seq)
+                    dat_dna = {}
+                    dat_dna['dna'] = alt_seq
+                    del alt_seq, alt_all
+                
                 if 'dat_atac' not in locals():
                     #get pth for it
                     ref_atac_pth_fnd = [i for (i, v) in zip(ref_atac_pth, 
                                                             [os.path.isfile(x) for x in ref_atac_pth]) if v]
-                    print('ref_atac_pth_fnd for alt '+ ref_atac_pth_fnd[0])
                     dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
                 if 'dat_atac_lcl' not in locals():
                         #get pth for it
                         ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
                                                             [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
                         dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])    
-                alt_seq = {'dna':dat_dna['dna'],
-                               'chrom_access_250':dat_atac['chrom_access_250'],
-                               'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
+                
+                #add try catch since this can fail
+                try:
+                    dna_alt= dat_dna['dna']
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue getting dna from npz - {alt_pth_fnd[0]}, delete, load and save again')
+                    alt_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              snp_pos=pos_i,snp_base=alt,
+                                              rand_seq_shift_amt=rand_seq_shift_amt,
+                                              return_chrom_access=False)
+                    alt_seq = alt_all[0]
+                    #save for next time
+                    np.savez(alt_pth_fnd[0],dna=alt_seq)
+                    dna_alt = alt_seq
+                    del alt_seq, alt_all
+                
+                alt_seq = {'dna':dna_alt,
+                           'chrom_access_250':dat_atac['chrom_access_250'],
+                           'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
                 del dat_atac, dat_dna, dat_atac_lcl 
+                
         if not no_pred: #don't waste time predicting if not necessary
             ref_seq_dna_all.append(ref_seq['dna'])
             ref_seq_prom_all.append(ref_seq['chrom_access_250'])
@@ -3274,7 +3334,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
             if ind == (len(dna_strt)-1):
                 #too memory intensive to pred all at once so split
                 del ref_seq,alt_seq
-                num_preds = 1
+                num_preds = 1#int(len(ref_seq_dna_all)/2)
                 ref_seq_all_1 = {"dna":tf.concat(ref_seq_dna_all,axis=0),
                                  "chrom_access_gbl":tf.concat(ref_seq_prom_all,axis=0),
                                  "chrom_access_lcl":tf.concat(ref_seq_lcl_all,axis=0),
@@ -3298,8 +3358,10 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 down_miss = False
                 if len(dna_strt)<max_num_pos and centre_ind<math.ceil(max_num_pos/2)-1:
                     up_miss=True
+                    print("up miss")
                 if len(dna_strt)<max_num_pos and centre_ind==math.ceil(max_num_pos/2)-1:
                     down_miss=True  
+                    print("down miss")
                 #now calc for edges if present  
                 #edge prediction region results may need to be chopped if overlap previous
                 #this will be the case when the target bp region isn't a mutliple of the input 
@@ -3328,16 +3390,11 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                                                     pred_ref[2:4,0:target_length-chop_pos,:]), 
                                                    axis=0)
                     pred_ref = pred_ref[:lst_len-4,:,:]
-                    #pred_alt_last = np.concatenate((pred_alt[lst_len-5:lst_len-3,
-                    #                                         chop_pos:target_length,:], 
-                    #                           pred_alt[lst_len-3:lst_len-1,0:target_length-chop_pos,:]), 
-                    #                          axis=0)
                     pred_alt_last = np.concatenate((pred_alt[0:2,chop_pos:target_length,:], 
                                                     pred_alt[2:4,0:target_length-chop_pos,:]), 
                                                    axis=0)
                     pred_alt = pred_alt[:lst_len-4,:,:]
                 del ref_seq_all_1,alt_seq_all_1
-                
                 #combine so the full window size is together
                 wind_size_pred_ref = []
                 wind_size_pred_alt = []
@@ -3365,7 +3422,6 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                                                      (1,pos_pred*n,out_c)))
                 wind_size_pred_alt.append(tf.reshape(pred_alt[3:,:,:][::4,:,:],
                                                      (1,pos_pred*n,out_c)))
-                print("saved....")
     if no_pred:#don't waste time predicting if not necessary
         return(None)
     #combine to 4 dim for each
@@ -3395,5 +3451,4 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         for i in range(wind_size_pred_ref.shape[0]):
             eff.append(effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:]))
         agg_eff = np.mean(np.vstack(eff),axis=0)
-        return(agg_eff)    
-
+        return(agg_eff)

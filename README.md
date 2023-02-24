@@ -60,13 +60,13 @@ See [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyp
 for a detailed explanation of all of these files. Downloaded data can also be viewed at source
 on [figshare](https://figshare.com/projects/Enformer_Celltyping/159143).
 
-## Using Enformer Celltyping
+## Enformer Celltyping - how can it be used for research?
 
 Enformer Celltyping has two main usage categories:
   1. You want to use the trained Enformer Celltyping model to predict. For example,
      you may have ATAC-seq (bulk or scATAC-seq which you have pseudobulked) for
      a cell type/tissue of interest and you would like to predict histone mark 
-     tracks for it. See `Interpretting Enformer Celltyping` section below for this 
+     tracks for it. See `Using & interpretting Enformer Celltyping` section below for this 
      and other uses for the trained Enformer Celltyping model.
   2. You are interested in training an Enformer Celltyping model on your own data
      so would like to see the trianing process. See `Training Enformer Celltyping`.
@@ -81,7 +81,7 @@ which steps through training the model on demo data. Or see
 train Enformer Celltyping as outlined in our manuscript.
 
 
-## Interpretting Enformer Celltyping    
+## Using & interpretting Enformer Celltyping    
 
 To see all use cases for the pre-trained Enformer Celltyping model, see
 [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb).
@@ -96,9 +96,9 @@ The use cases included are:
 
 Reproducing the hQTL SNP effect predicition analysis from our paper includes predicting 
 the effect of a genetic variants as explained in [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb). 
-However, since this requires predicting the effect for >600k SNPs, we used code to checkpoint
-partial runs in case of any errors. The analysis also required preprocessing of the hQTL
-datasets. See [reproducing_hQTL_SNP_effect_prediction](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_hQTL_SNP_effect_prediction.ipynb) 
-for more details.
+However, since this requires predicting the effect for **>850k SNPs for every cell type of interest**, 
+we used code to checkpoint partial runs in case of any errors, precomputed DNa embeddings for all SNPs 
+and set up runs in parallel. The analysis also required preprocessing of the hQTL datasets. See [reproducing_hQTL_SNP_effect_prediction](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_hQTL_SNP_effect_prediction.ipynb) 
+for details and related scripts.
 
 
