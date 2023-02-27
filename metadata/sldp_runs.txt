@@ -1,0 +1,432 @@
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27ac_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k27me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k36me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me1_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k4me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Monocyte_h3k9me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27ac_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k27me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k36me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me1_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k4me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/Neutrophil_h3k9me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27ac_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k27me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k36me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me1_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k4me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/T-Cell_h3k9me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27ac_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k27me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k36me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me1_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k4me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/LEG MUSCLE_h3k9me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27ac_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k27me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k36me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me1_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k4me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/PANCREAS_h3k9me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27ac_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k27me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k36me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me1_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k4me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_mono_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_mono_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_mono_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_mono_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_neut_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_neut_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_neut_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/neut_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_neut_K4ME1_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_tcel_K27AC_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K27AC_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_tcel_K27AC_hm3_snps_sum.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_tcel_K4ME1_hm3_snps_max.sumstats.gz
+./data/qtl/tcel_K4ME1_hm3_snps.sumstats.gz	-	./model_results/snp_effects/STOMACH - 1_h3k9me3_tcel_K4ME1_hm3_snps_sum.sumstats.gz
