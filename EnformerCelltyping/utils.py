@@ -3155,7 +3155,22 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 #get rand shift amnt from dna
                 ref_pth_fnd = [i for (i, v) in zip(ref_pth,
                                                    [os.path.isfile(x) for x in ref_pth]) if v]
-                dat_dna = np.load(ref_pth_fnd[0])
+                #add try catch since this can fail
+                try:
+                    dat_dna = np.load(ref_pth_fnd[0])
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue np.load npz - {ref_pth_fnd[0]}, delete, load and save again')
+                    ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                                  return_chrom_access=False)
+                    rand_seq_shift_amt = ref_all[1]
+                    ref_seq = ref_all[0]
+                    #save for next time
+                    np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                    dat_dna = {}
+                    dat_dna['dna'] = ref_seq
+                    dat_dna['rand_seq_shift_amt'] = rand_seq_shift_amt
+                    del ref_seq, rand_seq_shift_amt, ref_all
                 rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
                 #don't bother loading dna - speed
                 ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
@@ -3173,7 +3188,21 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                              chrom_access_250=ref_seq['chrom_access_gbl'])
                 #if using, need to load chrom access & dna
                 if not no_pred:
-                    ref_seq = {'dna':dat_dna['dna'],
+                    #add try catch since this can fail
+                    try:
+                        dna_ref = dat_dna['dna']
+                    except:
+                        #issue with npz, delete, load and save again
+                        print(f'issue getting dna from npz - {ref_pth_fnd[0]}, delete, load and save again')
+                        ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                                  return_chrom_access=False)
+                        rand_seq_shift_amt = ref_all[1]
+                        ref_seq = ref_all[0]
+                        #save for next time
+                        np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                        dna_ref = ref_seq
+                        del ref_seq, rand_seq_shift_amt, ref_all
+                    ref_seq = {'dna':dna_ref,
                                'chrom_access_250':ref_seq['chrom_access_gbl'],
                                'chrom_access_lcl':ref_seq['chrom_access_lcl']}
                     

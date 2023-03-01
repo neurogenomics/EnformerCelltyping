@@ -31,6 +31,7 @@ qtl = pd.read_csv(qtl_pth,sep='\t',
 #get end of effected region - i.e. end of peak to be safe
 qtl['end_reg'] = qtl[effect_reg_col_name].str.split(":").str[2]
 qtl['end_reg'] = qtl['end_reg'].astype('int')
+window_size = 1562*128
 qtl = qtl[abs(qtl['BP']-qtl['end_reg'])<=window_size//2]
 #only going to run prediction for each unique SNP (based on chr, pos, A1, A2)
 qtl.drop(qtl.columns.difference(['SNP','CHR','BP','A1','A2',eff_col]), 1, inplace=True)

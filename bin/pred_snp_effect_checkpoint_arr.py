@@ -315,9 +315,13 @@ for ind,hist_i in enumerate(labels):
             res_chr_i = res_i.copy()
             res_chr_i = res_chr_i[res_chr_i['CHR']==chro]
             res_chr_i = res_chr_i[['CHR','BP','SNP','A1','A2','Z']]
+            #make sure no na's
+            res_chr_i = res_chr_i[~res_chr_i['Z'].isna()]
             res_chr_i.rename(columns={'Z': f'EC_{cell}_{hist_i}_{eff_i}'},inplace=True)
             res_chr_i.to_csv(str(f_name_annot),sep='\t',index=False,compression='gzip')
         #save sumstats
         res_i_ = res_i.copy()[keep_cols]
+        #make sure no na's
+        res_i_ = res_i_[~res_i_['Z'].isna()]
         res_i_.to_csv(SAVE_PATH/f'snp_effects/{cell}_{hist_i}_{sumstats_name}_{eff_i}.sumstats.gz',
                      sep='\t',index=False,compression='gzip')
