@@ -3122,7 +3122,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         pos_i = snp_pos[ind]
         ref_pth = [i+f'/{chro}_{strt_i}.npz' for i in checkpoint_pth]
         ref_atac_pth = [i+f'/{cell_id}_ATAC.npz' for i in checkpoint_pth]
-        ref_atac_lcl_pth = [i+f'/{lcl_CA_strt_i}_ATAC_lcl.npz' for i in checkpoint_pth]
+        ref_atac_lcl_pth = [i+f'/{cell_id}_{lcl_CA_strt_i}_ATAC_lcl.npz' for i in checkpoint_pth]
         alt_pth = [i+f'/{chro}_{strt_i}_{alt}_{pos_i}.npz' for i in checkpoint_pth]
         any_ref = any([os.path.isfile(x) for x in ref_pth])
         any_ref_atac = any([os.path.isfile(x) for x in ref_atac_pth])
@@ -3138,14 +3138,36 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 ref_seq = ref_all[0]
                 #save for next time
                 np.savez(ref_pth[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                #save for next time
+                np.savez(ref_pth[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                dat_dna = {}
+                dat_dna['dna'] = ref_seq
+                dat_dna['rand_seq_shift_amt'] = rand_seq_shift_amt
                 #if using, need to load chrom access lcl and global
                 if any_ref_atac_lcl and any_ref_atac:
                     ref_atac_pth_fnd = [i for (i, v) in zip(ref_atac_pth, 
                                                             [os.path.isfile(x) for x in ref_atac_pth]) if v]
                     ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
                                                                 [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
+                    
+                    #add try catch for lcl ATAC too
+                    try:
+                        dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                    except:
+                        #issue with npz, delete, load and save again
+                        print(f'issue np.load npz - {ref_atac_lcl_pth_fnd[0]}, delete, load and save again')
+                        ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                                  rand_seq_shift_amt=rand_seq_shift_amt,
+                                                  return_dna=False)
+                        at_ref_seq = ref_all[0]
+                        #save for next time
+                        # local chromatin accessibility signature
+                        np.savez(ref_atac_lcl_pth_fnd[0],chrom_access_lcl=at_ref_seq['chrom_access_lcl'])
+                        dat_atac_lcl=at_ref_seq
+                        del at_ref_seq, ref_all
+                                        
                     dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
-                    dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+
                     if not no_pred:
                         ref_seq = {'dna':ref_seq,
                                    'chrom_access_250':dat_atac['chrom_access_250'],
@@ -3170,7 +3192,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                     dat_dna = {}
                     dat_dna['dna'] = ref_seq
                     dat_dna['rand_seq_shift_amt'] = rand_seq_shift_amt
-                    del ref_seq, rand_seq_shift_amt, ref_all
+                    del ref_seq, ref_all
                 rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
                 #don't bother loading dna - speed
                 ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
@@ -3197,11 +3219,10 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                         ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
                                                   return_chrom_access=False)
                         rand_seq_shift_amt = ref_all[1]
-                        ref_seq = ref_all[0]
                         #save for next time
-                        np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
-                        dna_ref = ref_seq
-                        del ref_seq, rand_seq_shift_amt, ref_all
+                        np.savez(ref_pth_fnd[0],dna=ref_all[0],rand_seq_shift_amt=rand_seq_shift_amt)
+                        dna_ref = ref_all[0]
+                        del ref_all
                     ref_seq = {'dna':dna_ref,
                                'chrom_access_250':ref_seq['chrom_access_gbl'],
                                'chrom_access_lcl':ref_seq['chrom_access_lcl']}
@@ -3230,10 +3251,26 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                     np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
                     dat_dna = {}
                     dat_dna['dna'] = ref_seq
-                    del ref_seq, rand_seq_shift_amt, ref_all
+                    dat_dna['rand_seq_shift_amt'] = rand_seq_shift_amt
+                    del ref_seq, ref_all
+                
+                #add try catch for lcl ATAC too
+                try:
+                    dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue np.load npz - {ref_atac_lcl_pth_fnd[0]}, delete, load and save again')
+                    ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                              rand_seq_shift_amt=dat_dna['rand_seq_shift_amt'],
+                                              return_dna=False)
+                    at_ref_seq = ref_all[0]
+                    #save for next time
+                    # local chromatin accessibility signature
+                    np.savez(ref_atac_lcl_pth_fnd[0],chrom_access_lcl=at_ref_seq['chrom_access_lcl'])
+                    dat_atac_lcl=at_ref_seq
+                    del at_ref_seq, ref_all
                     
-                dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])
-                dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                dat_atac = load_gbl_atac_ref(ref_atac_pth_fnd[0])                
                 
                 #add try catch since this can fail
                 try:
@@ -3248,7 +3285,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                     #save for next time
                     np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
                     dna_ref = ref_seq
-                    del ref_seq, rand_seq_shift_amt, ref_all
+                    del ref_seq, ref_all
                 
                 ref_seq = {'dna':dna_ref,
                            'chrom_access_250':dat_atac['chrom_access_250'],
@@ -3268,7 +3305,7 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 dat_dna = np.load(ref_pth_fnd[0])
                 rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
             ref_atac_pth = [i+f'/{cell_id}_ATAC.npz' for i in checkpoint_pth]
-            ref_atac_lcl_pth = [i+f'/{lcl_CA_strt_i}_ATAC_lcl.npz' for i in checkpoint_pth]
+            ref_atac_lcl_pth = [i+f'/{cell_id}_{lcl_CA_strt_i}_ATAC_lcl.npz' for i in checkpoint_pth]
             any_ref_atac = any([os.path.isfile(x) for x in ref_atac_pth])
             any_ref_atac_lcl = any([os.path.isfile(x) for x in ref_atac_lcl_pth])    
             if (not any_ref_atac) or (not any_ref_atac_lcl):    
@@ -3294,7 +3331,22 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                         #get pth for it
                         ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
                                                             [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
-                        dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])    
+                        #add try catch for lcl ATAC too
+                        try:
+                            dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                        except:
+                            #issue with npz, delete, load and save again
+                            print(f'issue np.load npz - {ref_atac_lcl_pth_fnd[0]}, delete, load and save again')
+                            ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                                      rand_seq_shift_amt=rand_seq_shift_amt,
+                                                      return_dna=False)
+                            at_ref_seq = ref_all[0]
+                            #save for next time
+                            # local chromatin accessibility signature
+                            np.savez(ref_atac_lcl_pth_fnd[0],chrom_access_lcl=at_ref_seq['chrom_access_lcl'])
+                            dat_atac_lcl=at_ref_seq
+                            del at_ref_seq, ref_all
+                        
                     alt_seq = {'dna':alt_seq,
                                'chrom_access_250':dat_atac['chrom_access_250'],
                                'chrom_access_lcl':dat_atac_lcl['chrom_access_lcl']}
@@ -3308,6 +3360,13 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                 try:
                     dat_dna = np.load(alt_pth_fnd[0])
                 except:
+                    #need rand_seq_shift_amt from ref so need to load it if it isn't already
+                    if 'rand_seq_shift_amt' not in locals():
+                        #get pth for it
+                        ref_pth_fnd = [i for (i, v) in zip(ref_pth,
+                                                           [os.path.isfile(x) for x in ref_pth]) if v]
+                        dat_dna = np.load(ref_pth_fnd[0])
+                        rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
                     #issue with npz, delete, load and save again
                     print(f'issue np.load npz - {alt_pth_fnd[0]}, delete, load and save again')
                     alt_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
@@ -3330,12 +3389,40 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                         #get pth for it
                         ref_atac_lcl_pth_fnd = [i for (i, v) in zip(ref_atac_lcl_pth, 
                                                             [os.path.isfile(x) for x in ref_atac_lcl_pth]) if v]
-                        dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])    
+                        #add try catch for lcl ATAC too
+                        try:
+                            dat_atac_lcl = np.load(ref_atac_lcl_pth_fnd[0])
+                        except:
+                            #need rand_seq_shift_amt from ref so need to load it if it isn't already
+                            if 'rand_seq_shift_amt' not in locals():
+                                #get pth for it
+                                ref_pth_fnd = [i for (i, v) in zip(ref_pth,
+                                                                   [os.path.isfile(x) for x in ref_pth]) if v]
+                                dat_dna = np.load(ref_pth_fnd[0])
+                                rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
+                            #issue with npz, delete, load and save again
+                            print(f'issue np.load npz - {ref_atac_lcl_pth_fnd[0]}, delete, load and save again')
+                            ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                                      rand_seq_shift_amt=rand_seq_shift_amt,
+                                                      return_dna=False)
+                            at_ref_seq = ref_all[0]
+                            #save for next time
+                            # local chromatin accessibility signature
+                            np.savez(ref_atac_lcl_pth_fnd[0],chrom_access_lcl=at_ref_seq['chrom_access_lcl'])
+                            dat_atac_lcl=at_ref_seq
+                            del at_ref_seq, ref_all    
                 
                 #add try catch since this can fail
                 try:
                     dna_alt= dat_dna['dna']
                 except:
+                    #need rand_seq_shift_amt from ref so need to load it if it isn't already
+                    if 'rand_seq_shift_amt' not in locals():
+                        #get pth for it
+                        ref_pth_fnd = [i for (i, v) in zip(ref_pth,
+                                                           [os.path.isfile(x) for x in ref_pth]) if v]
+                        dat_dna = np.load(ref_pth_fnd[0])
+                        rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
                     #issue with npz, delete, load and save again
                     print(f'issue getting dna from npz - {alt_pth_fnd[0]}, delete, load and save again')
                     alt_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
@@ -3481,3 +3568,4 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
             eff.append(effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:]))
         agg_eff = np.mean(np.vstack(eff),axis=0)
         return(agg_eff)
+    
