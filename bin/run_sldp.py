@@ -45,6 +45,8 @@ args=get_args()
 
 gwas_sumstats_pth = args.sumstats
 pred_sumstats_pth = args.pred
+#make sure cell names don't have spaces in them - would be in the pred
+pred_sumstats_pth = pred_sumstats_pth.replace(" ", "")
 #gwas_sumstats_pth =glob.glob(str(DATA_PATH / 'qtl'/'*hm3_snps.sumstats.gz'))[0]
 #pred_sumstats_pth = glob.glob('./model_results/snp_effects/*.sumstats.gz')[0] #find ./model_results/snp_effects/*.sumstats.gz \! -name '*_CHECKPOINT_*'
 
@@ -62,7 +64,17 @@ outfile_name = './model_results/predictions_sldp/{}_{}'.format(gwas_name,name)
 if not pathlib.Path('./model_results/predictions_sldp').is_dir():
     pathlib.Path('./model_results/predictions_sldp').mkdir(parents=True)
 
-sldp_command = 'sldp --sumstats-stem {} --sannot-chr {} --outfile-stem {} --config {}'.format(gwas_sumstats,sannot_path,outfile_name,conf)
+pred_ss = pd.read_csv('./model_results/snp_effects/Monocyte_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz',
+                      sep='\t')
+qtl_ss = pd.read_csv('./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz',sep='\t')
+# create a column marking df2 values
+pred_ss['marker'] = 1
+joined = pd.merge(qtl_ss, pred_ss[['SNP','A1','A2','marker']], on=['SNP','A1','A2'], how='left')
+filt_gwas_pth = gwas_sumstats+'_for_'+os.path.basename(pred_sumstats)
+joined = joined[joined['marker']==1][qtl_ss.columns]
+joined.to_csv(filt_gwas_pth+'.sumstats.gz',sep='\t',index=False,compression='gzip')    
+
+sldp_command = 'sldp --sumstats-stem "{}" --sannot-chr "{}" --outfile-stem "{}" --config "{}"'.format(filt_gwas_pth,sannot_path,outfile_name,conf)
 
 print(sldp_command)
 os.system(sldp_command)

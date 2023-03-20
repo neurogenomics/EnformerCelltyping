@@ -2848,9 +2848,16 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
     
     def effect_func_sum(a1,a2,axis=0):
         return np.sum(a1-a2,axis=axis)
+    
     def absmax(a,b):
         return (np.where(np.abs(a) > np.abs(b), a, b))
 
+    def catch_inf(a,inf_rep=10):
+        a=a.numpy()
+        a[a == -np.inf] = -np.sinh(inf_rep)
+        a[a == np.inf] = np.sinh(inf_rep)
+        return(a)
+    
     def effect_func_max(a1,a2,axis=0):
         a = np.max(a1-a2,axis=axis)
         b = np.min(a1-a2,axis=axis)
@@ -2940,6 +2947,9 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
     #combine to one sequence for all of the window size
     wind_size_pred_ref = tf.concat(wind_size_pred_ref,axis=1)
     wind_size_pred_alt = tf.concat(wind_size_pred_alt,axis=1)
+    #check for infinite/-infinite values, replace with make permissible values
+    wind_size_pred_ref = catch_inf(wind_size_pred_ref)
+    wind_size_pred_alt = catch_inf(wind_size_pred_alt)
     #Now aggregate the SNP effect based on chosen method
     #loop for each of org, rand perm, rev comp and average
     if effect_mode=='both':
@@ -3056,10 +3066,19 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
     assert alt in ['A','C','G','T'], "Alt must be one of 'A','C','G','T'"
 
     def effect_func_sum(a1,a2,axis=0):
-        return np.sum(a1-a2,axis=axis)
+        #increase precision as can get inf
+        return np.sum(np.float64(a1)-np.float64(a2),
+                      axis=axis)
+    
     def absmax(a,b):
         return (np.where(np.abs(a) > np.abs(b), a, b))
 
+    def catch_inf(a,inf_rep=10):
+        a=a.numpy()
+        a[a == -np.inf] = -np.sinh(inf_rep)
+        a[a == np.inf] = np.sinh(inf_rep)
+        return(a)
+    
     def effect_func_max(a1,a2,axis=0):
         a = np.max(a1-a2,axis=axis)
         b = np.min(a1-a2,axis=axis)
@@ -3069,7 +3088,9 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         a = np.max(a1-a2,axis=axis)
         b = np.min(a1-a2,axis=axis)
         return(absmax(a,b),
-               np.sum(a1-a2,axis=axis))
+               #increase precision as can get inf
+               np.sum(np.float64(a1)-np.float64(a2),
+                      axis=axis))
     
     def load_gbl_atac_ref(link):
         """
@@ -3193,7 +3214,22 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                     dat_dna['dna'] = ref_seq
                     dat_dna['rand_seq_shift_amt'] = rand_seq_shift_amt
                     del ref_seq, ref_all
-                rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
+                #add try catch since this can fail
+                try:
+                    rand_seq_shift_amt = dat_dna['rand_seq_shift_amt']
+                except:
+                    #issue with npz, delete, load and save again
+                    print(f'issue np.load npz - {ref_pth_fnd[0]}, delete, load and save again')
+                    ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
+                                                  return_chrom_access=False)
+                    rand_seq_shift_amt = ref_all[1]
+                    ref_seq = ref_all[0]
+                    #save for next time
+                    np.savez(ref_pth_fnd[0],dna=ref_seq,rand_seq_shift_amt=rand_seq_shift_amt)
+                    dat_dna = {}
+                    dat_dna['dna'] = ref_seq
+                    dat_dna['rand_seq_shift_amt'] = rand_seq_shift_amt
+                    del ref_seq, ref_all
                 #don't bother loading dna - speed
                 ref_all = data_generator.load(pos=strt_i,chro=chro,cell=cell,
                                               rand_seq_shift_amt=rand_seq_shift_amt,
@@ -3550,6 +3586,9 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
     if(dna_strt[len(dna_strt)-1]-dna_strt[len(dna_strt)-2]<target_bp and not down_miss):
         wind_size_pred_ref = tf.concat([wind_size_pred_ref,pred_ref_last],axis=1)
         wind_size_pred_alt = tf.concat([wind_size_pred_alt,pred_alt_last],axis=1)
+    #check for infinite/-infinite values, replace with make permissible values
+    wind_size_pred_ref = catch_inf(wind_size_pred_ref)
+    wind_size_pred_alt = catch_inf(wind_size_pred_alt)    
     #Now aggregate the SNP effect based on chosen method
     #loop for each of org, rand perm, rev comp and average
     if effect_mode=='both':

@@ -299,6 +299,7 @@ for index, row in sumstats_new.iterrows():
 #we want columns SNP A1 A2 Z N, separated for each 
 #output channel (binding protein)
 #Now save 
+cell = cell.replace(" ", "")
 keep_cols = ['SNP','A1','A2','Z','N']
 for ind,hist_i in enumerate(labels):
     res_i = sumstats.copy()

@@ -38,6 +38,7 @@ import pathlib
 from multiprocessing import Pool, cpu_count
 from EnformerCelltyping.constants import HIST_MARKS, METADATA_PATH, DATA_PATH, PROJECT_PATH
 import tarfile
+import zipfile
 
 def create_path(filename: str) -> None:
     """
@@ -139,9 +140,15 @@ def download_Enformer_Celltyping_weights() -> None:
     Downloads Enformer Celltyping model weights
     """
     folder_name = PROJECT_PATH / 'EnformerCelltyping'
-    enf_cell = ("enformer_celltyping_weights",
-            "path/to/folder/on/figshare")
-    download_file(enf_cell,folder_name,extension=False)  
+    enf_cell = ("enformer_celltyping_weights.zip",
+            "https://figshare.com/ndownloader/files/39678760")
+    download_file(enf_cell,folder_name,extension=False)
+    #now unzip
+    zip_pth = str(PROJECT_PATH / 'EnformerCelltyping' / 'enformer_celltyping_weights.zip')
+    with zipfile.ZipFile(zip_pth, 'r') as zip_ref:
+        zip_ref.extractall(str(PROJECT_PATH / 'EnformerCelltyping'))
+    #delete tar file
+    os.remove(str(PROJECT_PATH / 'EnformerCelltyping' / 'enformer_celltyping_weights.zip'))
 
 def download_avg_chromatin_accessibility() -> None:
     """
@@ -198,6 +205,6 @@ if __name__ == '__main__':
     #download enformer from tensorflow hub
     download_enformer()
     # download Enformer Celltyping weights
-    #download_Enformer_Celltyping_weights()
+    download_Enformer_Celltyping_weights()
     print("All downloads complete")
     print(datetime.now())
