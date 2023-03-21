@@ -2914,8 +2914,8 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
                    "chrom_access_lcl":ref_seq['chrom_access_lcl']
                   }
         #Now both ref and alt are ready to be passed to model
-        pred_ref = model.predict(ref_seq,return_arcsinh = False)
-        pred_alt = model.predict(alt_seq,return_arcsinh = False)
+        pred_ref = model.predict(ref_seq,return_arcsinh = True)#False)
+        pred_alt = model.predict(alt_seq,return_arcsinh = True)#False)
         #edge prediction region results may need to be chopped if overlap previous
         #this will be the case when the target bp region isn't a mutliple of the input 
         #region
@@ -3498,8 +3498,8 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
                               }
                 del alt_seq_dna_all,alt_seq_prom_all,alt_seq_lcl_all
                 #Now both ref and alt are ready to be passed to model
-                pred_ref = model.predict(ref_seq_all_1,return_arcsinh = False)
-                pred_alt = model.predict(alt_seq_all_1,return_arcsinh = False)
+                pred_ref = model.predict(ref_seq_all_1,return_arcsinh = True)#False)
+                pred_alt = model.predict(alt_seq_all_1,return_arcsinh = True)#False)
                 #Need to know that there needs to be a first and last i.e. one wasn't removed because 
                 #too close to an edge
                 max_num_pos = 1 + math.ceil((window_size_dna-target_bp)/(target_bp/2))

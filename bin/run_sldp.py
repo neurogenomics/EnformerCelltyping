@@ -45,8 +45,9 @@ args=get_args()
 
 gwas_sumstats_pth = args.sumstats
 pred_sumstats_pth = args.pred
-#make sure cell names don't have spaces in them - would be in the pred
+#make sure cell names don't have spaces or tabs in them - would be in the pred
 pred_sumstats_pth = pred_sumstats_pth.replace(" ", "")
+pred_sumstats_pth = pred_sumstats_pth.replace("\t", "")
 #gwas_sumstats_pth =glob.glob(str(DATA_PATH / 'qtl'/'*hm3_snps.sumstats.gz'))[0]
 #pred_sumstats_pth = glob.glob('./model_results/snp_effects/*.sumstats.gz')[0] #find ./model_results/snp_effects/*.sumstats.gz \! -name '*_CHECKPOINT_*'
 
@@ -64,9 +65,8 @@ outfile_name = './model_results/predictions_sldp/{}_{}'.format(gwas_name,name)
 if not pathlib.Path('./model_results/predictions_sldp').is_dir():
     pathlib.Path('./model_results/predictions_sldp').mkdir(parents=True)
 
-pred_ss = pd.read_csv('./model_results/snp_effects/Monocyte_h3k27ac_mono_K4ME1_hm3_snps_max.sumstats.gz',
-                      sep='\t')
-qtl_ss = pd.read_csv('./data/qtl/mono_K4ME1_hm3_snps.sumstats.gz',sep='\t')
+pred_ss = pd.read_csv(pred_sumstats_pth,sep='\t')
+qtl_ss = pd.read_csv(gwas_sumstats_pth,sep='\t')
 # create a column marking df2 values
 pred_ss['marker'] = 1
 joined = pd.merge(qtl_ss, pred_ss[['SNP','A1','A2','marker']], on=['SNP','A1','A2'], how='left')

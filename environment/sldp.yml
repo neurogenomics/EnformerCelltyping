@@ -1,0 +1,17 @@
+name: sldp
+channels:
+  - bioconda
+dependencies:
+  - python=2.7
+  - scipy
+  - numpy
+  - pandas
+  - matplotlib
+  - pysam
+  - pybedtools
+  - pysnptools
+  - pybigwig
+  - pip
+  - pip:
+    - git+https://github.com/zj-liu/sldp.git
+    - pathlib 

@@ -26,7 +26,7 @@ format:
 	isort EnformerCelltyping && black EnformerCelltyping
     
 ## Set up python interpreter environment and install basic dependencies
-env:
+pyanlyenv:
 ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 	
@@ -49,4 +49,17 @@ ifeq (True,$(HAS_CONDA))
 	@echo ">>> New conda environment created successfully!."
 else
 	@echo ">>> No conda detected. Environment creation aborted."
+endif
+
+## Set up sldp environment and install basic dependencies
+sldpenv:
+ifeq (True,$(HAS_CONDA))
+        @echo ">>> Detected conda, creating conda environment."
+
+        # Create the conda environment
+        conda env create -f environments/sldp.yml
+
+        @echo ">>> New conda environment created successfully!."
+else
+        @echo ">>> No conda detected. Environment creation aborted."
 endif
