@@ -48,8 +48,8 @@ pred_sumstats_pth = args.pred
 #make sure cell names don't have spaces or tabs in them - would be in the pred
 pred_sumstats_pth = pred_sumstats_pth.replace(" ", "")
 pred_sumstats_pth = pred_sumstats_pth.replace("\t", "")
-#gwas_sumstats_pth =glob.glob(str(DATA_PATH / 'qtl'/'*hm3_snps.sumstats.gz'))[0]
-#pred_sumstats_pth = glob.glob('./model_results/snp_effects/*.sumstats.gz')[0] #find ./model_results/snp_effects/*.sumstats.gz \! -name '*_CHECKPOINT_*'
+gwas_sumstats_pth = gwas_sumstats_pth.replace(" ", "")
+gwas_sumstats_pth = gwas_sumstats_pth.replace("\t", "")
 
 #ref files
 conf = './metadata/sldp_config.json'
