@@ -2187,76 +2187,9 @@ def plot_tracks(tracks1, tracks2, tracks3 = None,
     if save_plot is not None:
         plt.savefig(save_plot,bbox_inches='tight')
 
-
-def plot_signal(track, labels, 
-                the_chr, strt_bp, end_bp,cell, 
-                height=1, same_y = True, 
-                save_plot = None, overall_title = None):
-    """
-    Plot histone mark tracks
-    """
-    extended_palette = ["#9A8822","#F5CDB4","#F8AFA8",
-                    "#FDDDA0","#74A089","#85D4E3",
-                    #added extra to make 7
-                    '#78A2CC']
-    
-    plt.figure(figsize=(16., 12.))
-    plt.rc('ytick', labelsize=16)
-    
-    num_rows = len(labels)
-    num_cols = 1
-
-    row_height = 4
-        
-    grid = (row_height*num_rows,num_cols)
-
-    ax = []
-
-    for ind_row in range(num_rows):
-        grid_row = row_height*ind_row#*num_sep_rows(ind_row+1)
-
-        ax += [plt.subplot2grid(grid, (grid_row, 0), rowspan=row_height)]
-
-    #plt.subplots_adjust(bottom=.05, top=.95, hspace=.1)
-    
-    plt.rc('axes', titlesize=13, labelsize=13)
-    
-    y_limits = [4.9, 4.9, 4.9, 4.9, 4.9, 4.9]#[4, 4, 4, 4, 4, 4]
-    i = 0
-    p = []
-    for y_limit, title, y in zip(y_limits, labels, track[0].T):
-        p.append(ax[i].fill_between(np.linspace(0, len(y), 
-                                                num=len(y)), 
-                                    y, color=extended_palette[i]))
-
-        if same_y:
-            ax[i].set_ylim([0, y_limit])
-
-        #ax[i].set_title(title, fontsize=13,pad=.5)
-        ax[i].text(0.5, 0.8, title,size=15,
-                   transform=ax[i].transAxes, ha="center")
-        ax[i].set_xticklabels([])
-        sns.despine(top=True, right=True, bottom=True)
-        i += 1
-    ax[0].legend(
-        p,
-        labels,
-        bbox_to_anchor=(0.62, 1, 0.5, 0.5),
-        fontsize=12
-    )
-    
-    
-    plt.xlabel(f"{cell.capitalize()} {the_chr.capitalize()} :{strt_bp:,}-{end_bp:,}", 
-               fontsize=15)
-    if overall_title is not None:
-        plt.suptitle(overall_title,fontsize=18)
-    
-    if save_plot is not None:
-        plt.savefig(save_plot,bbox_inches='tight')
-
-def plot_signal(tracks, interval, height=1.5,
-                pal=["#9A8822","#F5CDB4","#F8AFA8",
-                    "#FDDDA0","#74A089","#85D4E3"]):
+def plot_signal(tracks, interval, add_mark=None,height=1.5,
+                    pal=["#9A8822","#F5CDB4","#F8AFA8",
+                         "#FDDDA0","#74A089","#85D4E3"]):
     """
     Simple plot function for the output of the Enformer
     Celltyping prediction or another similar signal.
@@ -2270,10 +2203,12 @@ def plot_signal(tracks, interval, height=1.5,
                        color=pal[i])
         ax.set_title(title)
         sns.despine(top=True, right=True, bottom=True)
+        if add_mark is not None:
+            ax.axvline(x=add_mark,color='red')
         i+=1
     
     ax.set_xlabel(f"{interval['cell']} {interval['chro']}-{interval['start']}:{interval['end']}")
-    plt.tight_layout()
+    plt.tight_layout() 
         
 def measure_receptive_field(model, seq_length: int = 196_608,
                             window_size_lcl: int = 1562*128,
@@ -2810,7 +2745,9 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
         effect_mode:
             Aggregating calculated effects can aggregate the bp 
             level effective change by sum or max for the QTL, 
-            default is to do both.
+            default is to do both. Use `None` to return signals 
+            without aggregation (will average across forward/reverse 
+            complement and random permutation though).
         window_size_dna: 
             Window size of DNA input for the model. Default is 
             196_608 - Enformer's DNA window size.
@@ -2868,16 +2805,17 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
         b = np.min(a1-a2,axis=axis)
         return(absmax(a,b),
                np.sum(a1-a2,axis=axis))
+    
+    if effect_mode is not None:
+        effect_mode = effect_mode.lower()
 
-    effect_mode = effect_mode.lower()
-
-    if effect_mode=='sum':
-        effect_func = effect_func_sum
-    elif effect_mode=='max':
-        effect_func = effect_func_max
-    elif effect_mode=='both':
-        effect_func = effect_func_max_sum    
-    assert effect_mode in ['sum','max','both'], 'Unknown effect function, use sum or max.'
+        if effect_mode=='sum':
+            effect_func = effect_func_sum
+        elif effect_mode=='max':
+            effect_func = effect_func_max
+        elif effect_mode=='both':
+            effect_func = effect_func_max_sum    
+        assert effect_mode in ['sum','max','both'], 'Unknown effect function, use sum, max or both.'
     
     #calc the actual base-pairs
     buffer_bp,target_length,target_bp = create_buffer(window_size=window_size_dna,
@@ -2952,10 +2890,25 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
     wind_size_pred_alt = catch_inf(wind_size_pred_alt)
     #Now aggregate the SNP effect based on chosen method
     #loop for each of org, rand perm, rev comp and average
+    if effect_mode is None:
+        #average 4 types
+        avg_pred_ref = np.mean(np.array([wind_size_pred_ref[0,:,:], #forward actual signal
+                                         wind_size_pred_ref[1,:,:], #random perm forward signal
+                                         wind_size_pred_ref[2,:,:][::-1], #reverse complement actual signal
+                                         wind_size_pred_ref[3,:,:][::-1]]), #reverse complement random perm signal
+                      axis=0)
+        avg_pred_alt = np.mean(np.array([wind_size_pred_alt[0,:,:], #forward actual signal
+                                         wind_size_pred_alt[1,:,:], #random perm forward signal
+                                         wind_size_pred_alt[2,:,:][::-1], #reverse complement actual signal
+                                         wind_size_pred_alt[3,:,:][::-1]]), #reverse complement random perm signal
+                      axis=0)
+        return(avg_pred_ref,avg_pred_alt)
     if effect_mode=='both':
         eff_max = []
         eff_sum = []
         for i in range(wind_size_pred_ref.shape[0]):
+            #don't need to reverse the order of the rev compliment since it gets aggregated to 
+            #a single value
             max_i,sum_i = effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:])
             eff_max.append(max_i)
             eff_sum.append(sum_i)
@@ -2965,6 +2918,8 @@ def predict_snp_effect_sldp(model, alt: str, cell: str, chro: str,
     else:    
         eff=[]        
         for i in range(wind_size_pred_ref.shape[0]):
+            #don't need to reverse the order of the rev compliment since it gets aggregated to 
+            #a single value
             eff.append(effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:]))
         agg_eff = np.mean(np.vstack(eff),axis=0)
         return(agg_eff)
@@ -3039,7 +2994,9 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         effect_mode:
             Aggregating calculated effects can aggregate the bp 
             level effective change by sum or max for the QTL, 
-            default is to sum.
+            default is to sum. Use `None` to return signals 
+            without aggregation (will average across forward/reverse 
+            complement and random permutation though).
         window_size_dna: 
             Window size of DNA input for the model. Default is 
             196_608 - Enformer's DNA window size.
@@ -3107,16 +3064,17 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
             print(f"Failed to load ref global atac,trying copy {link_copy}")
             dat = np.load(link_copy)
         return(dat)    
+    
+    if effect_mode is not None:
+        effect_mode = effect_mode.lower()
 
-    effect_mode = effect_mode.lower()
-
-    if effect_mode=='sum':
-        effect_func = effect_func_sum
-    elif effect_mode=='max':
-        effect_func = effect_func_max
-    elif effect_mode=='both':
-        effect_func = effect_func_max_sum    
-    assert effect_mode in ['sum','max','both'], 'Unknown effect function, use sum, max or both.'
+        if effect_mode=='sum':
+            effect_func = effect_func_sum
+        elif effect_mode=='max':
+            effect_func = effect_func_max
+        elif effect_mode=='both':
+            effect_func = effect_func_max_sum    
+        assert effect_mode in ['sum','max','both'], 'Unknown effect function, use sum, max or both.'
     
     #calc the actual base-pairs
     buffer_bp,target_length,target_bp = create_buffer(window_size=window_size_dna,
@@ -3591,10 +3549,25 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
     wind_size_pred_alt = catch_inf(wind_size_pred_alt)    
     #Now aggregate the SNP effect based on chosen method
     #loop for each of org, rand perm, rev comp and average
+    if effect_mode is None:
+        #average 4 types
+        avg_pred_ref = np.mean(np.array([wind_size_pred_ref[0,:,:], #forward actual signal
+                                         wind_size_pred_ref[1,:,:], #random perm forward signal
+                                         wind_size_pred_ref[2,:,:][::-1], #reverse complement actual signal
+                                         wind_size_pred_ref[3,:,:][::-1]]), #reverse complement random perm signal
+                      axis=0)
+        avg_pred_alt = np.mean(np.array([wind_size_pred_alt[0,:,:], #forward actual signal
+                                         wind_size_pred_alt[1,:,:], #random perm forward signal
+                                         wind_size_pred_alt[2,:,:][::-1], #reverse complement actual signal
+                                         wind_size_pred_alt[3,:,:][::-1]]), #reverse complement random perm signal
+                      axis=0)
+        return(avg_pred_ref,avg_pred_alt)
     if effect_mode=='both':
         eff_max = []
         eff_sum = []
         for i in range(wind_size_pred_ref.shape[0]):
+            #don't need to reverse the order of the rev compliment since it gets aggregated to 
+            #a single value
             max_i,sum_i = effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:])
             eff_max.append(max_i)
             eff_sum.append(sum_i)
@@ -3604,6 +3577,8 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
     else:    
         eff=[]        
         for i in range(wind_size_pred_ref.shape[0]):
+            #don't need to reverse the order of the rev compliment since it gets aggregated to 
+            #a single value
             eff.append(effect_func(wind_size_pred_ref[i,:,:],wind_size_pred_alt[i,:,:]))
         agg_eff = np.mean(np.vstack(eff),axis=0)
         return(agg_eff)
