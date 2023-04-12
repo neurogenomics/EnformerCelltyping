@@ -1,4 +1,4 @@
-from EnformerCelltyping.constants import DATA_PATH,CHROMOSOME_DATA
+from EnformerCelltyping.constants import DATA_PATH,CHROMOSOME_DATA,WINDOW_SIZE_DNA
 
 import pandas as pd
 import os.path
@@ -31,8 +31,11 @@ qtl = pd.read_csv(qtl_pth,sep='\t',
 #get end of effected region - i.e. end of peak to be safe
 qtl['end_reg'] = qtl[effect_reg_col_name].str.split(":").str[2]
 qtl['end_reg'] = qtl['end_reg'].astype('int')
-window_size = 1562*128
-qtl = qtl[abs(qtl['BP']-qtl['end_reg'])<=window_size//2]
+qtl['strt_reg'] = qtl[effect_reg_col_name].str.split(":").str[1]
+qtl['strt_reg'] = qtl['strt_reg'].astype('int')
+window_size = WINDOW_SIZE_DNA #based on DNA as smaller than chrom access
+#use start if reg upstream and end if downstream
+qtl=qtl[(abs(qtl['BP']-qtl['end_reg'])<=window_size//2)&(abs(qtl['BP']-qtl['strt_reg'])<=window_size//2)]
 #only going to run prediction for each unique SNP (based on chr, pos, A1, A2)
 qtl.drop(qtl.columns.difference(['SNP','CHR','BP','A1','A2',eff_col]), 1, inplace=True)
 #split out to multiple orws where non-bi-allelic SNP => A2 = AT...
