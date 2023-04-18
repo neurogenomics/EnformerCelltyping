@@ -67,7 +67,23 @@ if not pathlib.Path('./model_results/predictions_sldp').is_dir():
 
 pred_ss = pd.read_csv(pred_sumstats_pth,sep='\t')
 qtl_ss = pd.read_csv(gwas_sumstats_pth,sep='\t')
-# create a column marking df2 values
+
+#filter pred by qtl to make sure just SNPs in QTL are predicted on
+qtl_ss['marker'] = 1
+joined = pd.merge(pred_ss, qtl_ss[['SNP','A1','A2','marker']], on=['SNP','A1','A2'], how='left')
+joined = joined[joined['marker']==1][pred_ss.columns]
+joined.to_csv(pred_sumstats_pth,sep='\t',index=False,compression='gzip') 
+pred_ss = joined
+qtl_ss.drop('marker', axis=1, inplace=True)
+#also filt dfs split by chrom
+for pth_i in glob.glob(str(sannot_path+'/*.sannot.gz')):
+    res_chr_i = pd.read_csv(pth_i,sep='\t')
+    keep_cols = res_chr_i.columns
+    joined['marker'] = 1
+    res_chr_i = pd.merge(res_chr_i, joined[['SNP','A1','A2','marker']], on=['SNP','A1','A2'], how='left')
+    res_chr_i = res_chr_i[res_chr_i['marker']==1][keep_cols]
+    res_chr_i.to_csv(pth_i,sep='\t',index=False,compression='gzip')
+# filter qtl to make sure only SNPs we have preds for
 pred_ss['marker'] = 1
 joined = pd.merge(qtl_ss, pred_ss[['SNP','A1','A2','marker']], on=['SNP','A1','A2'], how='left')
 filt_gwas_pth = gwas_sumstats+'_for_'+os.path.basename(pred_sumstats)
