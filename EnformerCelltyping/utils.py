@@ -2069,7 +2069,7 @@ def plot_tracks(tracks1, tracks2, tracks3 = None,
                             '#78A2CC']
     
     plt.figure(figsize=figsize)
-    plt.rc('ytick', labelsize=16)
+    plt.rc('ytick', labelsize=11)
     
     num_rows = len(labels)*2
     num_cols = 1
@@ -2096,7 +2096,7 @@ def plot_tracks(tracks1, tracks2, tracks3 = None,
 
     plt.subplots_adjust(bottom=.05, top=.95, hspace=.1)
     
-    plt.rc('axes', titlesize=14, labelsize=13)
+    plt.rc('axes', titlesize=14, labelsize=11)
     
     y_limits = [4.9, 4.9, 4.9, 4.9, 4.9, 4.9]#[4, 4, 4, 4, 4, 4]
     i = 0
@@ -2182,7 +2182,7 @@ def plot_tracks(tracks1, tracks2, tracks3 = None,
         plt.xlabel(f"{cell.capitalize()} {the_chr.capitalize()} :{strt_bp:,}-{end_bp:,}", 
                fontsize=15)
     if overall_title is not None:
-        plt.suptitle(overall_title,fontsize=18)
+        plt.suptitle(overall_title,fontsize=18,y=1.07)
     
     if save_plot is not None:
         plt.savefig(save_plot,bbox_inches='tight')
