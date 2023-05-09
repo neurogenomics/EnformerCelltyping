@@ -16,6 +16,11 @@ def get_args():
 
 args=get_args()
 
+effect_reg_col_name = 'PHENOTYPEID' #formatted as chr:strt:end
+adj_p_val_col_name = 'LFDR'
+maf_col = 'ALT.AF'
+eff_col = 'BETA'
+
 qtl_pth=args.qtl_pth
 
 #filter to hapmap3 SNPs
