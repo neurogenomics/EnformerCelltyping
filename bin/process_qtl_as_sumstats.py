@@ -66,4 +66,7 @@ if not 'N' in qtl_hm3.columns:
     elif(cell=="mono"):
         N = 158
     qtl_hm3['N'] = N
+#need to have eff col named Z for SLDP
+if eff_col == 'BETA':
+    qtl_hm3 = qtl_hm3.rename(columns={'BETA': 'Z'})
 qtl_hm3.to_csv(qtl_pth.split('log2rpm')[0]+'hm3_snps.sumstats.gz',compression='gzip',index=False,sep='\t')
