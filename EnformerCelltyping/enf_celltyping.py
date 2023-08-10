@@ -554,6 +554,18 @@ class Enformer_Celltyping(object):
         
         return(output)
     
+    def get_model(self):
+        """
+        Return the tf model so it can be used for fine-tuning
+        """
+        return(self.model)
+    
+    def save_weights(self,filepath,**kwargs):
+        """
+        save weights of model
+        """
+        return(self.model.save_weights(filepath,**kwargs))
+    
     def predict(self, X, return_arcsinh: bool = False, 
                 return_delta: bool = False, **kwargs):
         """

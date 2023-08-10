@@ -15,4 +15,4 @@ avg_tracks () {
 }
 export -f avg_tracks
 
-parallel --jobs 16 avg_tracks ::: `find ./data/h3k27ac ./data/h3k4me3/ ./data/h3k36me3/ ./data/h3k9me3/ ./data/h3k4me1/ ./data/h3k27me3/ ./data/atac/ -name '*.bigWig' -not -name *_25.bigWig`
+parallel --jobs 16 avg_tracks ::: `find ./data/h3k27ac ./data/h3k4me3/ ./data/h3k36me3/ ./data/h3k9me3/ ./data/h3k4me1/ ./data/h3k27me3/ ./data/atac/ -name '*.bigWig' -not -name *_128.bigWig`

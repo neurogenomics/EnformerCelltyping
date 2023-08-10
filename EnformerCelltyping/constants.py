@@ -143,7 +143,7 @@ TRAIN_DATA_PATH = DATA_PATH / "train"
 #  load DNA data (sequence data) path
 DNA_PATHS = list(DNA_REFERENCE_PATH.glob("*.bigWig"))
 #  load Average chromatin accessibilty data path
-ATAC_AVG_PATH = MODEL_REFERENCE_PATH / "avg_atac.bigWig"
+ATAC_AVG_PATH = MODEL_REFERENCE_PATH / "avg_atac_128.bigWig"
 # y values (histone mark) avg paths
 h3k27ac_AVG_PATH = MODEL_REFERENCE_PATH / "avg_h3k27ac.bigWig"
 h3k4me1_AVG_PATH = MODEL_REFERENCE_PATH / "avg_h3k4me1.bigWig"

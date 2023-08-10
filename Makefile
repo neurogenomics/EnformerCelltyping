@@ -54,12 +54,12 @@ endif
 ## Set up sldp environment and install basic dependencies
 sldpenv:
 ifeq (True,$(HAS_CONDA))
-        @echo ">>> Detected conda, creating conda environment."
+	@echo ">>> Detected conda, creating conda environment."
 
-        # Create the conda environment
-        conda env create -f environments/sldp.yml
-
-        @echo ">>> New conda environment created successfully!."
+	# Create the conda environment
+	conda env create -f environments/sldp.yml
+	
+	@echo ">>> New conda environment created successfully!."
 else
-        @echo ">>> No conda detected. Environment creation aborted."
+	@echo ">>> No conda detected. Environment creation aborted."
 endif

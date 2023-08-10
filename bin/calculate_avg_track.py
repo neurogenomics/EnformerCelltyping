@@ -69,17 +69,20 @@ bw_output = pyBigWig.open(str(OUTPUT),'w')
 
 bw_output.addHeader(list(zip(CHROMOSOMES , num_bp)), maxZooms=0) # zip two turples
 
+#first open a connection to all bigwigs
+print('loading files')
+cell_dat={
+    cell:pyBigWig.open(str(sample_files[cell]))
+    for cell in sample_files
+}
 
 for the_chr in CHROMOSOMES:
     print('calculating average for ' + the_chr)
     x = np.zeros(chr_len[the_chr])
     for the_input in sample_files:
-        print('loading ' + the_input)
-        bw=pyBigWig.open(str(sample_files[the_input]))
-        tmp=np.array(bw.values(the_chr,0,chr_len[the_chr]))
+        tmp=np.array(cell_dat[the_input].values(the_chr,0,chr_len[the_chr]))
         tmp[np.isnan(tmp)]=0 # set nan to 0
         x += tmp
-        bw.close()
     x=x/len(sample_files)
     ## convert to bigwig format
     # pad two zeroes

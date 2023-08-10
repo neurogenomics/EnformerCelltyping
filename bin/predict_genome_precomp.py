@@ -52,7 +52,7 @@ data_generator = generate_sample(
 
 #load Enformer celltyping model
 import tensorflow as tf
-from EnformerCelltyping.enf_celltyping import Enformer_Celltyping
+from EnformerCelltyping.enf_celltyping_test import Enformer_Celltyping
 
 #load histone marks from constants so the ordering of predictions is known
 from EnformerCelltyping.constants import PRED_HIST_MARKS
