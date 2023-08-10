@@ -31,7 +31,7 @@ ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 	
 	# Create the conda environment
-	conda env create -f environments/py_analysis.yml
+	conda env create -f environment/py_analysis.yml
 
 	@echo ">>> New conda environment created successfully!."
 else
@@ -44,7 +44,7 @@ ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 	
 	# Create the conda environment
-	conda env create -f environments/r_bioc.yml
+	conda env create -f environment/r_bioc.yml
 
 	@echo ">>> New conda environment created successfully!."
 else
@@ -57,7 +57,7 @@ ifeq (True,$(HAS_CONDA))
 	@echo ">>> Detected conda, creating conda environment."
 
 	# Create the conda environment
-	conda env create -f environments/sldp.yml
+	conda env create -f environment/sldp.yml
 	
 	@echo ">>> New conda environment created successfully!."
 else
