@@ -37,12 +37,13 @@ Once `conda` is installed, place the `conda` executable in `PATH`, use the follo
 command to create an environment named EnformerCelltyping with all necessary 
 dependencies and activate it. **Note** this may take some time to complete:
 
-Create the necessary environments using the yml file, then activate the 
+Create the necessary environments using the yml files, then activate the 
 Enformer Celltyping environment:
 
 ```
 conda env create -f ./environment/enformer_celltyping.yml &&\
-make env &&\
+make renv &&\ 
+make pyanalyenv &&\
 conda activate EnformerCelltyping &&\
 pip install -e .
 ```
