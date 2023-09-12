@@ -141,7 +141,7 @@ def download_Enformer_Celltyping_weights() -> None:
     """
     folder_name = PROJECT_PATH / 'EnformerCelltyping'
     enf_cell = ("enformer_celltyping_weights.zip",
-            "https://figshare.com/ndownloader/files/39678760")
+            "https://figshare.com/ndownloader/files/42284337")
     download_file(enf_cell,folder_name,extension=False)
     #now unzip
     zip_pth = str(PROJECT_PATH / 'EnformerCelltyping' / 'enformer_celltyping_weights.zip')

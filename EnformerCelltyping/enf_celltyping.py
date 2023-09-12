@@ -4,6 +4,7 @@ import os
 from EnformerCelltyping.utils import(gelu,create_enf_chopped_model,pearsonR)
 
 def build_enf_celltyping(use_prebuilt_model: bool = True,
+                         model_arch: str = 'combn',
                          enf_celltyping_pth: str = None,
                          window_size_CA: int= 1562*128, 
                          dropout_rate: float = 0.4,
@@ -14,11 +15,15 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
                          ct_embed_nodes: int = 3072,
                          dna_nodes: int = 1536,
                          n_dense_dna: int = 1,
+                         n_dense_quant: int = 1,
                          n_dense_ct: int = 2,
                          pointwise_nodes_dna: int = 3072,
+                         pointwise_nodes_quant: int = 3072,
                          output_activation_dna: str ="softplus",
+                         output_activation_quant: str ='softmax',
                          output_activation_ct: str ="linear",
-                         output_channels: int = 6
+                         output_channels: int = 6,
+                         n_quants: int = 10
                          ):
     """
     Use this to build the Enformer Celltyping model either with a
@@ -29,6 +34,18 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
     use_prebuilt_model: 
         Whether to load a model or create a new architecture.
         The default is True.
+    
+    model_arch:
+        Enformer Celltyping was trained in two stages - the first stage 
+        was a pre-training step to 'warm-up' the weights for the chromatin
+        accessibility information (ATAC-Seq) to avoid the pre-trained Enformer 
+        layers dominating predictive input. Setting model_arch to 'split' will 
+        create the architecture for this pre-training step where the avg signal 
+        and quantile distribution of signals (from the training cell types) is 
+        predicted from the DNA information and the delta between the avg signal 
+        and the cell type of interest is predicted from the chromatin accessiblity
+        information (3 separate outputs for each of the 6 histone marks). Keeping
+        to the default of 'combn', will create the combined architecture.
     
     enf_celltyping_pth: 
         Path to the weights/whole saved model of enformer celltyping 
@@ -70,6 +87,10 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
     n_dense_dna:
         The number of dense layer blocks to use for the dna channel. 
         The default is 1.    
+    
+    n_dense_quant:
+        The number of dense layer blocks to use for the quant channel. 
+        The default is 1. 
         
     n_dense_ct:
         The number of dense layer blocks to use for the chromatin 
@@ -80,9 +101,18 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
         DNA channel. If less than input size, dimensionality reduction. 
         Default is 3072.
         
+    pointwise_nodes_quant:
+        The output number of nodes for the pointwise convolution for the
+        quantile channel. If less than input size, dimensionality reduction. 
+        Default is 3072.  
+        
     output_activation_dna:
         The activation to use for the final output dense layer for the DNA
         channel. Default is softplus.
+    
+    output_activation_quant:
+        The activation to use for the final output dense layer for the quantile
+        channel. Default is softmax.
     
     output_activation_ct:
         The activation to use for the final output dense layer for the cell
@@ -93,6 +123,9 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
         the model. The default is 6 corresponding to the 6 histone marks
         Enformer Celltyping was trained on: 
         ['h3k27ac', 'h3k4me1', 'h3k27me3', 'h3k4me3', 'h3k36me3' and 'h3k9me3']
+        
+    n_quants: 
+        Integer. Number of quantiles to use. Default is deciles - 10.    
     
     ENF_CHANNELS,ENF_PRED_POS:
         output shape of chopped Enformer model
@@ -168,19 +201,18 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
         cat_embed = tf.keras.layers.Dense(ct_embed_nodes, activation=gelu, 
                                           name=f"dense_combn{i}_celltype")(cat_embed)
         #dropout
-        cat_embed = tf.keras.layers.Dropout(dropout_rate/4,#/8,#4,
+        cat_embed = tf.keras.layers.Dropout(dropout_rate/16,#8, #4,
                                            name=f"dropout{i}_celltype")(cat_embed)
     
     all_chan = []
     for i in range(1,output_channels+1):
-            cat_embed2 = tf.keras.layers.Dense(ENF_PRED_POS, activation=output_activation_ct,
+        cat_embed2 = tf.keras.layers.Dense(ENF_PRED_POS, activation=output_activation_ct,
                                                name=f"dense_chan_celltype_{i}")(cat_embed)
-            cat_embed2 = tf.keras.layers.Dropout(dropout_rate/8,#4,
-                                                 name=f"dropout_chan_celltype_{i}")(cat_embed2)
-            #expand dim add dim at end
-            cat_embed2 = tf.expand_dims(cat_embed2, axis=-1)
-            #append channel
-            all_chan.append(cat_embed2)
+        #expand dim add dim at end
+        cat_embed2 = tf.expand_dims(cat_embed2, axis=-1)
+        #append channel
+        all_chan.append(cat_embed2)
+    
     output_delta = tf.keras.layers.concatenate(all_chan, axis=2,name="delta")
     
     #------------------------------------
@@ -188,6 +220,7 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
     #------------------------------------
     #DNA arch
     x = inputs['dna']
+    
     for i in range(1,n_dense_dna+1):
         #Dense layer (connections on last dimension) so celltype embedding and DNA joined
         x = tf.keras.layers.Dense(dna_nodes, activation=gelu, 
@@ -213,22 +246,108 @@ def build_enf_celltyping(use_prebuilt_model: bool = True,
     #gelu - https://arxiv.org/abs/1606.08415
     x = gelu(x,name="gelu1_finalpoint")
     #-----
+        
     #Dense layer for output
     output_avg = tf.keras.layers.Dense(output_channels,
-                                        activation=output_activation_dna,name="avg")(x)
-    model = tf.keras.Model(inputs, [output_avg,output_delta], name = "EnfCelltyping")
-    #load wieghts if necessary
+                                           activation=output_activation_dna,name="avg")(x)
+    #------------------------------------
+    
+    #add in quantiles - same arch for Enformer/Avg, just have multiple outputs for quantiles
+    x_quant = inputs['dna']
+
+    for i in range(1,n_dense_quant+1):
+        #Dense layer (connections on last dimension) so celltype embedding and DNA joined
+        x_quant = tf.keras.layers.Dense(dna_nodes, activation=gelu, 
+                                        name=f"dense{i}_quant")(x_quant)
+        #dropout
+        x_quant = tf.keras.layers.Dropout(dropout_rate/16,
+                                          name=f"dropout{i}_quant")(x_quant)
+    #final_pointwise-----
+    #conv block---
+    x_quant = tf.keras.layers.BatchNormalization(
+        momentum=0.99,epsilon=0.001,
+        center=True,scale=True,
+        name="batchnorm1_finalpoint_quant")(x_quant)
+    #gelu - https://arxiv.org/abs/1606.08415
+    x_quant = gelu(x_quant,name="gelu1_convblck_finalpoint_quant")
+    #conv
+    x_quant = tf.keras.layers.Conv1D(filters=pointwise_nodes_quant,kernel_size=1,
+                                     name="conv1d1_finalpoint_quant")(x_quant)
+    #---
+    #dropout
+    x_quant = tf.keras.layers.Dropout(dropout_rate/16,
+                                      name="dropout1_finalpoint_quant")(x_quant)
+    #gelu - https://arxiv.org/abs/1606.08415
+    x_quant = gelu(x_quant,name="gelu1_finalpoint") 
+    #-----
+
+    all_quant = []
+    for i in range(1,output_channels+1):
+        #use a dense layer of size equal to the number of quantiles for each output channel
+        #use output layer with softmax activation
+        chan_quant = tf.keras.layers.Dense(n_quants, activation=output_activation_quant,
+                                           name=f"quant_out_chan_{i}")(x_quant)
+        #expand dim add dim at end
+        chan_quant = tf.expand_dims(chan_quant, axis=2)
+        #append channel
+        all_quant.append(chan_quant)
+
+    output_quant = tf.keras.layers.concatenate(all_quant, axis=2,name="quant")    
+    #------------------------------------
+    
+    if model_arch=='combn':
+        #Now combine the the avg, quantiles and delta layers
+        output_avg = tf.expand_dims(output_avg, axis=3)
+        output_delta = tf.expand_dims(output_delta, axis=3)
+        combn_a_d = tf.keras.layers.Concatenate(name="cat_avg_delta",
+                                            axis=3)([output_avg,output_quant,output_delta])
+        all_combn = []
+        #add dense layers to each output channel (epigenetic mark)
+        for i in range(output_channels):
+            #for each channel - (None, 896, 1, 12)
+            #conv block---
+            chan_i = tf.keras.layers.BatchNormalization(
+                momentum=0.99,epsilon=0.001,
+                center=True,scale=True,
+                name=f"batchnorm1_chan_{i}")(combn_a_d[:,:,i,:])
+            #gelu - https://arxiv.org/abs/1606.08415
+            chan_i = gelu(chan_i,name=f"gelu1_convblck_chan_{i}")
+            #conv - increase size same as for quant/dna
+            chan_i = tf.keras.layers.Conv1D(filters=chan_i.shape[2]*8,kernel_size=1,
+                                       name=f"conv1d1_chan_{i}")(chan_i)
+            #---
+            #dropout
+            chan_i = tf.keras.layers.Dropout(dropout_rate/16,
+                                        name=f"dropout1_chan_{i}")(chan_i)
+            #gelu - https://arxiv.org/abs/1606.08415
+            chan_i = gelu(chan_i,name="gelu1_chan_{i}")
+            #-----
+            #then just flatten
+            flat_chan = tf.keras.layers.Flatten(name=f"flatten_chan_{i}")(chan_i)
+            #output layer
+            x_i = tf.keras.layers.Dense(ENF_PRED_POS,activation="softplus",
+                                        name=f"avg_delta_out_channel{i}")(flat_chan)
+            #expand dim add dim at end
+            x_i = tf.expand_dims(x_i, axis=-1)
+            #append channel
+            all_combn.append(x_i)
+
+        output_combn = tf.keras.layers.concatenate(all_combn, axis=2,name="cat_combn_avg_delta")    
+        model = tf.keras.Model(inputs, output_combn, name = "EnformerCelltyping")
+    
+    else:#split model
+        model = tf.keras.Model(inputs, [output_avg,output_delta,output_quant], name = "EnfCelltyping")
+    
+    #load weights if necessary - by_name=True means only matched named ones updated i.e. EnfCelltyping layers
     if use_prebuilt_model and file_extension == '.h5':
-        model.load_weights(enf_celltyping_pth)
+        model.load_weights(enf_celltyping_pth,by_name=True)
+    
     return(model)
 
 
 #set model values ---------
 #DNA input same as Enformer - DNA input window, ~100kbp either side
 WINDOW_SIZE_DNA = 196_608
-#Local chromatin accessibilty input size, ~100kbp either side
-WINDOW_SIZE_LCL_CA = 1562*128
-
 #output from chopped enformer model
 ENF_CHANNELS = 1536
 ENF_PRED_POS = 896
@@ -269,7 +388,19 @@ class Enformer_Celltyping(object):
     
     use_prebuilt_model: 
         Whether to load a model or create a new architecture.
-        The default is True.
+        The default is True.   
+     
+    model_arch:
+        Enformer Celltyping was trained in two stages - the first stage 
+        was a pre-training step to 'warm-up' the weights for the chromatin
+        accessibility information (ATAC-Seq) to avoid the pre-trained Enformer 
+        layers dominating predictive input. Setting model_arch to 'split' will 
+        create the architecture for this pre-training step where the avg signal 
+        and quantile distribution of signals (from the training cell types) is 
+        predicted from the DNA information and the delta between the avg signal 
+        and the cell type of interest is predicted from the chromatin accessiblity
+        information (3 separate outputs for each of the 6 histone marks). Keeping
+        to the default of 'combn', will create the combined architecture.
     
     enf_celltyping_pth: 
         Path to the weights of enformer celltyping model if 
@@ -312,22 +443,38 @@ class Enformer_Celltyping(object):
         The number of dense layer blocks to use for the dna channel. 
         The default is 1.
     
+    n_dense_quant:
+        The number of dense layer blocks to use for the quant channel. 
+        The default is 1. 
+        
     n_dense_ct:
         The number of dense layer blocks to use for the chromatin 
-        accessibility data after embedding. Default is 2.     
-    
+        accessibility data after embedding. Default is 2.
+        
     pointwise_nodes_dna:
         The output number of nodes for the pointwise convolution for the
         DNA channel. If less than input size, dimensionality reduction. 
         Default is 3072.
         
+    pointwise_nodes_quant:
+        The output number of nodes for the pointwise convolution for the
+        quantile channel. If less than input size, dimensionality reduction. 
+        Default is 3072.  
+        
     output_activation_dna:
         The activation to use for the final output dense layer for the DNA
         channel. Default is softplus.
     
+    output_activation_quant:
+        The activation to use for the final output dense layer for the quantile
+        channel. Default is softmax.
+    
     output_activation_ct:
         The activation to use for the final output dense layer for the cell
         typing channel. Default is linear.
+        
+    n_quants: 
+        Integer. Number of quantiles to use. Default is deciles - 10.        
     
     Returns Enformer Celltyping class object
     """
@@ -335,6 +482,7 @@ class Enformer_Celltyping(object):
                  assays: list = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3'],
                  enf_path = None, 
                  use_prebuilt_model=True,
+                 model_arch = 'combn',
                  enf_celltyping_pth: str = None,
                  window_size_CA: int= 1562*128,
                  dropout_rate: float = 0.4,
@@ -344,16 +492,21 @@ class Enformer_Celltyping(object):
                  n_gbl_factors: int = 25,
                  ct_embed_nodes: int = 3072,
                  dna_nodes: int = 1536,
-                 n_dense_ct: int = 2,
                  n_dense_dna: int = 1,
+                 n_dense_quant: int = 1,
+                 n_dense_ct: int = 2,
                  pointwise_nodes_dna: int = 3072,
+                 pointwise_nodes_quant: int = 3072,
                  output_activation_dna: str ="softplus",
-                 output_activation_ct: str ="linear"):
-    
+                 output_activation_quant: str ='softmax',
+                 output_activation_ct: str ="linear",
+                 n_quants: int = 10):
+
         self.assays = list(assays)
         self.n_assays = len(assays)
 
         self.use_prebuilt_model = use_prebuilt_model
+        self.model_arch = model_arch.lower()
         self.enf_celltyping_pth = enf_celltyping_pth
         self.window_size_CA = window_size_CA
         self.dropout_rate = dropout_rate
@@ -368,6 +521,7 @@ class Enformer_Celltyping(object):
         self.pointwise_nodes_dna = pointwise_nodes_dna
         self.output_activation_dna = output_activation_dna
         self.output_activation_ct = output_activation_ct
+        self.n_quants = n_quants
         
         if enf_path is not None:
             self.enf = create_enf_chopped_model(enf_path)
@@ -375,6 +529,7 @@ class Enformer_Celltyping(object):
             self.enf = None
 
         self.model = build_enf_celltyping(use_prebuilt_model=self.use_prebuilt_model,
+                                          model_arch = self.model_arch,
                                           enf_celltyping_pth=self.enf_celltyping_pth,
                                           window_size_CA=self.window_size_CA,
                                           dropout_rate=self.dropout_rate,
@@ -389,7 +544,8 @@ class Enformer_Celltyping(object):
                                           pointwise_nodes_dna=self.pointwise_nodes_dna,
                                           output_activation_dna=self.output_activation_dna,
                                           output_activation_ct=self.output_activation_ct,
-                                          output_channels=self.n_assays)
+                                          output_channels=self.n_assays,
+                                          n_quants = self.n_quants)
     
     def compile(self,**kwargs):
         """
@@ -567,7 +723,8 @@ class Enformer_Celltyping(object):
         return(self.model.save_weights(filepath,**kwargs))
     
     def predict(self, X, return_arcsinh: bool = False, 
-                return_delta: bool = False, **kwargs):
+                return_delta: bool = False, 
+                return_avg: bool =False, **kwargs):
         """
         predict does two things:
         
@@ -582,9 +739,13 @@ class Enformer_Celltyping(object):
             for downstream work, the output should be converted back). By default this
             will be converted back.
         return_delta:
-            This will return just the delta of the cell type from the average
+            For split model, this will return just the delta of the cell type from the average
             cell type prediction at the genomic location. Default is False which will return
-            the predicted cell type signal at the location.
+            the predicted cell type signal at the location (given return_dna is also False).
+        return_avg:
+            For split model, this will return just the average DNA prediction at the genomic 
+            location. Default is False which will return the predicted cell type signal at the 
+            location (given return_delta is also False).
         """
         
         if self.enf is not None:
@@ -593,11 +754,17 @@ class Enformer_Celltyping(object):
          
         
         pred = self.model.predict(X,**kwargs)
-        #convert avg pred and diff to one, cell type pred
-        output = pred[0]+pred[1]
-        #if only want delta
-        if return_delta:
-            output = pred[1]
+        if self.model_arch=='split':
+            #convert avg pred and diff to one, cell type pred
+            output = pred[0]+pred[1]
+            #if only want delta
+            if return_delta:
+                output = pred[1]
+            #if only want dna avg pred
+            if return_avg:
+                output = pred[0]    
+        else:#combn
+            output = pred
         if not return_arcsinh:
             #tranform predictions back from arc-sinh back with sinh
             output = np.sinh(output)

@@ -659,7 +659,7 @@ def get_path(cell: str, feature: str,
     # Get full length cell name from synonym
     #get key from value
     if not user_pths or cell == 'avg':
-        if cell != 'avg':
+        if cell != 'avg' and cell not in [f'avg_quant_{i}' for i in range(0,10)]:
             # Load feature path
             if feature in ["A", "C", "G", "T"]:
                 return DNA_DATA[feature]
@@ -690,7 +690,11 @@ def get_path(cell: str, feature: str,
             elif feature == "chrom_access_embed":
                 return AVG_DATA_PATH['atac']
             else: #main case, get avg
-                return AVG_DATA_PATH[feature]
+                if cell == 'avg':
+                    return AVG_DATA_PATH[feature]
+                if cell in [f'avg_quant_{i}' for i in range(0,10)]: #avg_atac_quantile_0.bigWig
+                    i = cell.split('_')[2] #i is quantile number
+                    return MODEL_REFERENCE_PATH / f"avg_{feature}_quantile_{i}.bigWig"
     else:#user passed the path to the bigwig file with the cell        
         #this option is only to load chromatin accessibility and DNA
         # Load feature path
@@ -713,7 +717,11 @@ def load_bigwig(path: Union[os.PathLike, str], decode: bool = False):
             path = path.decode("utf-8")
         except:
             pass
-    return pyBigWig.open(path)
+    try: 
+        rtn = pyBigWig.open(path) 
+    except: 
+        rtn = 'failed'
+    return rtn
 
 def create_buffer(window_size: int, pred_res: int, pred_prop: float = 0.3):
     """
@@ -868,7 +876,8 @@ def load_y(data: dict,#pybigwig object
            selected_chromosome: chr,selected_cell: chr,
            window_start: int,buffer_bp: int,
            window_size: int,pred_res: int, arcsin_trans: bool,
-           debug: bool,rtn_y_avg: bool = False):
+           debug: bool,rtn_y_avg: bool = False,
+           include_quant: bool = False,n_quants=10):
     """Function to load y labels from bigwigs"""
     #ensure window size divis by pred res
     window_size_calc = (window_size//pred_res)*pred_res
@@ -883,6 +892,8 @@ def load_y(data: dict,#pybigwig object
         selected_cell='avg'
     # Output labels only for selected cells
     all_y = np.zeros(shape=(target_length, len(labels)))
+    if include_quant:
+        all_y_quant = np.zeros(shape=(target_length, len(labels)*n_quants))
     for i, label in enumerate(labels):
         #data at pred_res bp lvl already but loaded in at 1bp lvl
         #need to avg back up!
@@ -909,6 +920,22 @@ def load_y(data: dict,#pybigwig object
                     )
                 ).reshape(-1, pred_res),#averaging at desired pred_res  
                 axis=1)
+        #also load the quantile data
+        if include_quant:
+            for j in range(0,n_quants):
+                all_y_quant[:,j+(i*n_quants)] = np.mean( 
+                    np.nan_to_num(
+                        data[selected_cell+f'_quant_{j}'][label].values(
+                            selected_chromosome,
+                            window_start+buffer_bp+buff_res,
+                            window_start + window_size_calc - buffer_bp+buff_res,
+                            numpy=True
+                        )
+                    ).reshape(-1, pred_res),#averaging at desired pred_res  
+                    axis=1)
+    #return quants to other data
+    if include_quant:
+        return {'y':all_y,'quant':all_y_quant}    
     return all_y
 
 def load_chrom_access_prom(data: dict,
@@ -1002,6 +1029,8 @@ def initiate_bigwigs(
     pred_res: int = 128,
     load_avg=True,
     user_pths=False,
+    load_quantiles=False,
+    n_quants: int = 10
 ):
     """
     Initiate the connection to the bigwigs
@@ -1033,6 +1062,10 @@ def initiate_bigwigs(
             Whether to get the paths for the data files from the constants file 
             (`./EnformerCelltyping/constants.py`) - False or from the user on 
             input - True.
+        load_quantiles:
+            Whether to load the quantiles for the distribution of training cell type values.
+        n_quants:
+            Number of quantiles, only necessary if using quantile data    
     """
     # Input verification
     if not all(np.isin(features, ALLOWED_FEATURES)):
@@ -1056,6 +1089,11 @@ def initiate_bigwigs(
         else: #user passed paths so is a dict    
             cells['avg'] = 'a/fake/pth' #path for avg will be taken from constants.py still
         cell_probs = np.append(cell_probs,1)
+        #quantiles made with avg
+        if load_quantiles:
+            for i in range(0,n_quants):
+                cells = np.append(cells,f'avg_quant_{i}')
+                cell_probs = np.append(cell_probs,1)
     
     assert len(cells) == len(cell_probs), "Must provide probabilities for all cells"
     assert len(chromosomes) == len(
@@ -1116,6 +1154,7 @@ def generate_data(
     peak_centre: float = 1.0,
     max_rand_perms: int = 100,
     data_trans = False, #should a data transformation be applied to the DNA? Pass model (Enformer) to do it
+    n_quants: int = 10,#number of quantiles if using
     rtn_y_avg = False, #returns the training cells' avg signal as well as the true signal for the position
     up_dwn_stream_bp: int = 3_000, #num bp's to use around TSS of prot coding genes
     snp_pos: int = None,
@@ -1211,6 +1250,8 @@ def generate_data(
             Should the DNA input (X) data be transformed by passing through the pre-trained and chopped 
             Enformer model? Pass this model to do it. The benefit would be the training/predicting requires
             less RAM than doing so in the model itself.
+        n_quants:
+            Number of quantiles to use to describe distribution. Default is 10.
         rtn_y_avg:
             Boolean, whether to return the chosen postions' avg signal from all training cells as well as the 
             true signal for the cell in question. This is used for training the two channel model of Enformer 
@@ -1253,6 +1294,7 @@ def generate_data(
         samps_embed_gbl =[]
         samps_y =[]
         samps_avg_y =[]
+        samps_quant_y = []
         for samp in range(num_samps):
             #if adding random perm, load once slightly large then subset
             if rand_seq_shift:
@@ -1488,6 +1530,8 @@ def generate_data(
                                window_start=dna_start,
                                buffer_bp=buffer_bp,window_size=window_size,
                                pred_res=pred_res,arcsin_trans=arcsin_trans,
+                               include_quant = False, #only need quants for avg
+                               n_quants = n_quants, 
                                debug=debug)
                 if rtn_y_avg:
                     all_y_avg = load_y(data=data,
@@ -1496,6 +1540,8 @@ def generate_data(
                                        selected_cell=selected_cell,window_start=dna_start,
                                        buffer_bp=buffer_bp,window_size=window_size,
                                        pred_res=pred_res,arcsin_trans=arcsin_trans,
+                                       include_quant = True,
+                                       n_quants = n_quants,
                                        debug=debug,rtn_y_avg=True)
                 #if random shifting of pos happening make sep inputs
                 #can't use same trick as with x as averaging with buffer so just 
@@ -1510,6 +1556,8 @@ def generate_data(
                                     window_start=dna_start+rand_shift_amt,#add random shift
                                     buffer_bp=buffer_bp,window_size=window_size,
                                     pred_res=pred_res,arcsin_trans=arcsin_trans,
+                                    include_quant = False, #only need quants for avg
+                                    n_quants = n_quants,
                                     debug=debug)
                     #append org
                     y.append(all_y)
@@ -1524,6 +1572,8 @@ def generate_data(
                                             window_start=dna_start+rand_shift_amt,#add random shift ##
                                             buffer_bp=buffer_bp,window_size=window_size,
                                             pred_res=pred_res,arcsin_trans=arcsin_trans,
+                                            include_quant = True,
+                                            n_quants = n_quants,
                                             debug=debug,rtn_y_avg=True)
                         #append org
                         y_avg.append(all_y_avg)
@@ -1551,13 +1601,27 @@ def generate_data(
                         y.append(y[y_i][::-1])
                     if rtn_y_avg:
                         for y_i in range(org_len_y):
-                            y_avg.append(y_avg[y_i][::-1])
+                            #each y_avg value is a dict of y and quant
+                            tmp = {'y':y_avg[y_i]['y'][::-1],
+                                   'quant':y_avg[y_i]['quant'][::-1]}
+                            y_avg.append(tmp)
                 #For embedding - don't reverse if using prom marker genes
                 for x_i in range(org_len_X):
                     #local chrom access so do rev
                     embed_X.append(embed_X[x_i][::-1])
                     #global
-                    embed_X_gbl.append(embed_X_gbl[x_i][::-1])            
+                    embed_X_gbl.append(embed_X_gbl[x_i][::-1])        
+            
+            #split quant and avg
+            if rtn_y_avg:
+                y_avg_old = y_avg
+                y_avg = []
+                y_quant = []
+                for y_i in range(len(y_avg_old)):
+                    y_avg.append(y_avg_old[y_i]['y'])
+                    y_quant.append(y_avg_old[y_i]['quant'])
+                del y_avg_old  
+                
             #return
             #enformer works with float32 not 64
             samps_X.append(tf.stack([np.float32(tf.convert_to_tensor(x_i.copy())) for x_i in X]))
@@ -1567,6 +1631,7 @@ def generate_data(
                 samps_y.append(tf.stack([np.float32(tf.convert_to_tensor(y_i.copy())) for y_i in y]))
                 if rtn_y_avg:
                     samps_avg_y.append(tf.stack([np.float32(tf.convert_to_tensor(y_i.copy())) for y_i in y_avg]))
+                    samps_quant_y.append(tf.stack([np.float32(tf.convert_to_tensor(y_i.copy())) for y_i in y_quant]))
         
         #apply Enformer transformation
         if data_trans != False and dna_feat and not loaded_dna_embed_pth:
@@ -1592,7 +1657,8 @@ def generate_data(
                            "chrom_access_gbl":tf.concat(samps_embed_gbl,axis=0)
                           },
                           {"act":tf.concat(samps_y,axis=0),
-                           "avg":tf.concat(samps_avg_y,axis=0)})
+                           "avg":tf.concat(samps_avg_y,axis=0),
+                           "quant":tf.concat(samps_quant_y,axis=0)})
                 else:
                     yield({"dna":tf.concat(samps_X,axis=0),
                            "chrom_access_lcl":tf.concat(samps_embed,axis=0),
@@ -1797,10 +1863,14 @@ class PreSavedDataGen(tf.keras.utils.Sequence):
     loaded and saved in npz
     """
     def __init__(self, files, batch_size,
+                 combn_y = True,
+                 n_quants = 10,
                  shuffle=True):
         self.files = files
         self.batch_size = batch_size
         self.shuffle = shuffle
+        self.combn_y = combn_y
+        self.n_quants = n_quants
         self.indices = np.arange(len(self.files))
         self.on_epoch_end()
         
@@ -1827,6 +1897,7 @@ class PreSavedDataGen(tf.keras.utils.Sequence):
         X_chrom_access_gbl = []
         y = []
         y_avg = []
+        y_quant = []
         epoch_files = file_list_temp
         for ind,ID in enumerate(epoch_files):
             # load
@@ -1842,17 +1913,35 @@ class PreSavedDataGen(tf.keras.utils.Sequence):
             #change between cell types
             y_avg_tmp = dat['y_avg']
             y_avg.append(y_avg_tmp)
-            #y is now the difference betweent the act cell type values
-            #and the training cells' average
-            #this will be predicted by the CT channel
-            y.append(dat['y_act']-y_avg_tmp)
+            #get quant info                             
+            #try splitting out each dist better (1, 896, 60) -> (1, 896, 6, 10)
+            shp = dat['y_quant'].shape
+            y_quant_tmp = np.reshape(dat['y_quant'], 
+                                     (shp[0],shp[1],shp[2]//self.n_quants,
+                                     self.n_quants)
+                                    )
+            y_quant.append(y_quant_tmp)                             
+            if self.combn_y:
+                #combn_y==TRUE so just return cell type specific signal not avg/delta - 
+                #note this will become y['delta'] below so watch out for naming when returning
+                y.append(dat['y_act'])                         
+            else:                        
+                #y is now the difference betweent the act cell type values
+                #and the training cells' average
+                #this will be predicted by the CT channel
+                y.append(dat['y_act']-y_avg_tmp)
         #combine X, y
         X = ({'dna':tf.concat(X_dna,axis=0),
               'chrom_access_lcl':tf.concat(X_chrom_access,axis=0),
               'chrom_access_gbl':tf.concat(X_chrom_access_gbl,axis=0),})
         y = ({'avg':tf.concat(y_avg,axis=0),
-          'delta':tf.concat(y,axis=0)})
-
+              'delta':tf.concat(y,axis=0),
+              'quant':tf.concat(y_quant,axis=0)})
+        if self.combn_y:
+            #just combn - y is the cell type signal so just don't work out delta and return it
+            #Note delta is act cell type specific signal because of line 'y.append(dat['y_act'])' above
+            y = y['delta']
+        
         return X, y    
 
     def __len__(self):
@@ -2189,7 +2278,8 @@ def plot_tracks(tracks1, tracks2, tracks3 = None,
 
 def plot_signal(tracks, interval, add_mark=None,height=1.5,
                     pal=["#9A8822","#F5CDB4","#F8AFA8",
-                         "#FDDDA0","#74A089","#85D4E3"]):
+                         "#FDDDA0","#74A089","#85D4E3"],
+                    min_y=3.5):
     """
     Simple plot function for the output of the Enformer
     Celltyping prediction or another similar signal.
@@ -2201,6 +2291,9 @@ def plot_signal(tracks, interval, add_mark=None,height=1.5,
                                     interval['end'], 
                                     num=len(y)), y,
                        color=pal[i])
+        #set minimum y axis largest value to min_y
+        y_limit = max(min_y,max(y))
+        ax.set_ylim([0, y_limit])
         ax.set_title(title)
         sns.despine(top=True, right=True, bottom=True)
         if add_mark is not None:
@@ -2475,6 +2568,199 @@ def _run_mut_enformer(model, mutation_pos: int,
     avg_changed_mut = np.mean(avg_changed_pred[buffer-1:buffer+target_bp-1])
     return avg_changed_pred_org, avg_changed_mut 
 
+
+#add smoothing line since this is noisy
+#Exponential Moving Average
+def smooth(scalars: [float], weight: float) -> [float]:  # Weight between 0 and 1
+    last = scalars[0]  # First value in the plot (first timestep)
+    smoothed = list()
+    for point in scalars:
+        smoothed_val = last * weight + (1 - weight) * point  # Calculate smoothed value
+        smoothed.append(smoothed_val)                        # Save it
+        last = smoothed_val                                  # Anchor the last smoothed value
+        
+    return smoothed
+
+def measure_receptive_field_CA(model, seq_length: int = 196_608,
+                            window_size_lcl: int = 1562*128,
+                            window_size_gbl: int = 1216*3_000,
+                            N_iter: int = 100,N_pos: int = 100,
+                            model_name: str = 'Enformer_Celltyping',
+                            agg_snp_eff_centre_bp: int = 128*4,
+                            pred_res: int = 128
+                           ):
+    """
+    Measure the receptive field of a model by running the
+    mutation experiment at several locations in the sequence.
+    
+    Arguments: 
+    model:
+        Model to calculate the receptive field for.
+    seq_length:
+        Length of DNA input the model takes.
+    window_size_lcl:
+        Base-pairs of chromatin accessibility data used
+        to embed local cell type information. Only relevant 
+        for Enformer Celltyping.
+    window_size_gbl:
+        Base-pairs of chromatin accessibility data used
+        to embed global cell type information. Only relevant 
+        for Enformer Celltyping.
+    N_iter:
+        Number of iterations for receptive field test at each 
+        positions.
+    N_pos:
+        Number of positions to test receptive field, evenly 
+        spaced across the input sequence length
+    model_name:
+        Model to be checked, currently can only be 
+        Enformer_Celltyping
+    agg_snp_eff_centre_bp:
+        The centre number of base-pairs to aggregate the effect of 
+        a SNP on. Not using all predicted base-pairs as we want to
+        be sure SNP's at the edge of the input window have long range 
+        effects on the centre positions. Default 512
+    pred_res:
+        Predictive resolution of the model. Default is 128.
+    """
+    #mutation of ATAC is going to be at 1 location and 2 locations
+    #either side (128bp res) to simulate a whole ATAC peak being removed
+    #so can't choose first or least positions as need to add 1 either side
+    mutation_locations = np.linspace(0+2, 
+                                     window_size_lcl//pred_res - 1 - 2, 
+                                     N_pos)
+    avg_delta_pred_all = []
+    avg_delta_mut_all = []
+    for mutation_location in tqdm(mutation_locations):
+        mutation_location = int(mutation_location)
+        if (model_name.lower()=='enformer_celltyping'):
+            avg_delta_pred, avg_delta_mut = _run_mut_enf_celltyping_CA(model,
+                                                                       mutation_location,
+                                                                       seq_length,
+                                                                       window_size_lcl,
+                                                                       window_size_gbl,
+                                                                       N_iter,
+                                                                       agg_snp_eff_centre_bp,
+                                                                       pred_res
+                                                                      )
+        else:
+            raise ValueError(f'The model {model_name} is not supported.')
+            
+        avg_delta_pred_all.append(avg_delta_pred)
+        avg_delta_mut_all.append(avg_delta_mut)
+    #make dictionary with postion and mean change
+    #update indecies so in the correct range (128bp averages)
+    mutation_locations = mutation_locations*pred_res
+    delta_pred = dict(zip(mutation_locations, avg_delta_pred_all))
+    delta_mut = avg_delta_mut_all
+    
+    return(delta_pred,delta_mut)
+
+
+def _run_mut_enf_celltyping_CA(model, mutation_pos: int,
+                               seq_length: int = 196_608,
+                               window_size_lcl: int = 1562*128,
+                               window_size_gbl: int = 1216*3_000,
+                               N_iter: int = 100,
+                               agg_snp_eff_centre_bp: int = 128*4,
+                               pred_res: int = 128
+                           ):
+    """
+    Measure the receptive field of the Enformer Celltyping model by:
+    (1) predicting on a random sequence of DNA + ATAC signal
+    (2) mutate 128bp*3 ATAC signal
+    (3) predict on the new signal
+    (4) measure the prediction difference
+    (5) repeat steps 1-4 multiple times, then take the average
+    Arguments:
+    model:
+        Model to calculate the receptive field for.
+    mutation_pos:
+        Location in the sequence for the mutation - integer
+    seq_length:
+        Length of DNA input the model takes.
+    window_size_lcl:
+        Base-pairs of chromatin accessibility data used
+        to embed local cell type information.
+    window_size_gbl:
+        Base-pairs of chromatin accessibility data used
+        to embed global cell type information.
+    N_iter:
+        Number of iterations for receptive field test at each 
+        positions.
+    agg_snp_eff_centre_bp:
+            The centre number of base-pairs to aggregate the effect of 
+            a SNP on. Not using all predicted base-pairs as we want to
+            be sure SNP's at the edge of the input window have long range 
+            effects on the centre positions. Default 512
+    pred_res:
+        Predictive resolution of the model. Default is 128.
+    Returns:
+        The average change in the prediction for the model by mutation 
+        and position
+    """
+    BASE_PAIRS = np.eye(4)
+    changed_pred = []
+
+    for i in range(N_iter):
+        # Baseline run -----------------
+        random_dna = BASE_PAIRS[
+            np.random.choice(BASE_PAIRS.shape[0], size=seq_length)
+        ][np.newaxis, :, :]
+        #Randomly sample arrays that resemble range of ATAC data from actual cell types
+        #lcl = actual - avg ATAC
+        #rep values so peaks aren't tiny
+        rep_val = 2
+        #normal dist but add more zeros
+        #minus and plus numbers since the input is the difference between cell specific and avg
+        a = np.random.normal(scale=.5, size=(1, ((window_size_lcl//pred_res)//rep_val)))[0,:]
+        #shift average down slightly
+        a = np.where(a ==0, a, a-.25)
+        a = np.repeat(a,rep_val)
+        rand_chro_access_lcl = np.expand_dims(np.array(a, dtype=np.float32),0)
+        #gbl ATAC singal - replicate with poisson dist
+        rep_val = 2
+        a = np.repeat(np.random.poisson(1.4, ((window_size_gbl//250)//rep_val)),rep_val)
+        rand_chro_access_gbl = np.expand_dims(np.array(a,dtype=np.float32),0)
+        #store values
+        rand_x = {"dna":random_dna,
+                  "chrom_access_lcl":rand_chro_access_lcl,
+                  "chrom_access_gbl":rand_chro_access_gbl}
+        
+        #predict
+        baseline_pred = model.predict(rand_x,
+                                      return_arcsinh = False)
+
+        # Mutation run ------------------
+        mutated_chro_access_lcl = copy.deepcopy(rand_chro_access_lcl)
+        #simulate removal of any cell type-specific difference (if one at the location)
+        mutated_chro_access_lcl[0,mutation_pos-2:mutation_pos+3] = 0
+        #DNA and global chrom access stays the same
+        rand_mut_x = {"dna":random_dna,
+                      "chrom_access_lcl":mutated_chro_access_lcl,
+                      "chrom_access_gbl":rand_chro_access_gbl}
+        #predict
+        mut_pred = model.predict(rand_mut_x,
+                                 return_arcsinh = False)
+
+        # Measure the difference in expression level
+        difference = mut_pred - baseline_pred
+        #save the difference
+        changed_pred.append(difference)
+    #aggregate - get the average across pred positions
+    avg_changed_pred = np.mean(np.mean(np.abs(changed_pred), 
+                                            axis=0),#avg across N_iters 
+                                    axis=2)[0]#avg across output tracks 
+    #aggregate - get the average change by mutational positions
+    #NOTE enf celltyping preds on 0.114 of input DNA's 196_608bp's enf does 0.5833333
+    #need to adjust enf avg to just 0.114 rather than 0.58333
+    #in fact we should only be testing the change on the very centre to make sure 
+    #long distance SNPs are taken into account
+    target_bp = agg_snp_eff_centre_bp//pred_res
+    target_pos = len(avg_changed_pred)
+    buffer = (target_pos-target_bp)//2
+    avg_changed_mut = np.mean(avg_changed_pred[buffer-1:buffer+target_bp-1])
+    return avg_changed_pred, avg_changed_mut
 
 
 def create_ref_alt_DNA_window(chro: str, pos: int,

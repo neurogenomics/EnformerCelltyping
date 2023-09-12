@@ -9,6 +9,7 @@ import math
 
 #import constants
 from EnformerCelltyping.constants import (
+    PROJECT_PATH,
     CHROM_LEN, 
     CHROMOSOMES, 
     SAMPLES,
@@ -45,8 +46,8 @@ labels = HIST_MARKS  # prediction targets
 pred_resolution = 128  # window size must be divisible by prediciton resolution
 window_size_dna = 196_608 #Enformer input size
 batch_size = 128
-n_epochs = 100 #lower than in manuscript for speed, change to 5_000 to match manuscript.
-learning_rate = 0.0002 #target learning rate,matches enformer
+n_epochs = 4
+learning_rate = 0.0005 #higher learning rate than pretraining
 
 #remove dnase from pred if using in training
 if 'dnase' in features or 'chrom_access_embed' in features:
@@ -136,7 +137,10 @@ from EnformerCelltyping.enf_celltyping import Enformer_Celltyping
 
 #don't add in layers for enformer since the dna is already 
 #passed through enformer layers when precomputing
-model = Enformer_Celltyping(use_prebuilt_model=False)
+model = Enformer_Celltyping(use_prebuilt_model=True,
+                            #path to stage 1 (split) training weights
+                            enf_celltyping_pth = str(PROJECT_PATH /'EnformerCelltyping'/'enformer_celltyping_split.h5')
+                           )
 
 #set seed reproducibility
 np.random.seed(102)
@@ -144,28 +148,29 @@ tf.random.set_seed(102)
 random.seed(102)
     
 print(model.summary())
-#trainable params 1,681,985,712
+#Trainable params: 2,151,690,684
 
 model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=learning_rate),
-          loss={'avg':tf.keras.losses.poisson,
-                'delta':tf.keras.losses.mean_squared_error},
-          metrics=['mse',pearsonR])
+              loss=tf.keras.losses.poisson,
+              metrics=['mse',pearsonR])
 
 #checkpoint to rerun where left off
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
      filepath=checkpoint_path+'.{epoch:02d}.h5',
      save_freq='epoch', verbose=1, 
      save_weights_only=True,
-     period=10
+     period=2
 )
 
 import datetime
 strt = datetime.datetime.now()
+stps = len(train_dataloader)#1,735 steps = 1 full epoch
 
 # Train the model
 model.fit(
         train_dataloader,
         epochs=n_epochs,
+        steps_per_epoch=stps,
         verbose=2,
         validation_data=valid_dataloader,
         callbacks=[checkpoint]

@@ -20,6 +20,10 @@ args=get_args()
 cell = args.cell.strip()
 out_pth = args.output_dir.strip()
 chrom_access_pth = args.path_chrom_access.strip()
+
+#Ensure path to chrom access exists
+assert os.path.exists(chrom_access_pth), f"Path to Chromatin accessibility file incorrect: '{chrom_access_pth}'. Update -p input"
+
 #predict in batches for speed
 batch_size = args.batch_size
 #

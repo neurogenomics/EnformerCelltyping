@@ -2,6 +2,7 @@ import argparse
 from tqdm import tqdm
 import pyBigWig
 import numpy as np
+import os
 
 #pass inputs
 # argv
@@ -11,7 +12,7 @@ def get_args():
     parser.add_argument('-p', '--path_chrom_access', default="", type=str, 
                         help='Path to chromatin accessability for the cell type')
     parser.add_argument('-o', '--output_dir', default="", type=str, help='Path to output')
-    parser.add_argument('-b', '--batch_size', default=4, type=int, help='Number of predictions to make in one pass')
+    parser.add_argument('-b', '--batch_size', default=64, type=int, help='Number of predictions to make in one pass')
     parser.add_argument('-d', '--dna_embed_dir', default="./data/dna_embed", type=str, 
                         help='Path to output for DNA embeddings') 
     args = parser.parse_args()
@@ -23,6 +24,10 @@ cell = args.cell.strip()
 out_pth = args.output_dir.strip()
 dna_embed_pth = args.dna_embed_dir.strip()
 chrom_access_pth = args.path_chrom_access.strip()
+
+#Ensure path to chrom access exists
+assert os.path.exists(chrom_access_pth), f"Path to Chromatin accessibility file incorrect: '{chrom_access_pth}'. Update -p input"
+
 #predict in batches for speed
 batch_size = args.batch_size
 #
@@ -52,7 +57,7 @@ data_generator = generate_sample(
 
 #load Enformer celltyping model
 import tensorflow as tf
-from EnformerCelltyping.enf_celltyping_test import Enformer_Celltyping
+from EnformerCelltyping.enf_celltyping import Enformer_Celltyping
 
 #load histone marks from constants so the ordering of predictions is known
 from EnformerCelltyping.constants import PRED_HIST_MARKS

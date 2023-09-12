@@ -98,7 +98,7 @@ The use cases included are:
 Reproducing the hQTL SNP effect predicition analysis from our paper includes predicting 
 the effect of a genetic variants as explained in [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb). 
 However, since this requires predicting the effect for **>850k SNPs for every cell type of interest**, 
-we used code to checkpoint partial runs in case of any errors, precomputed DNa embeddings for all SNPs 
+we used code to checkpoint partial runs in case of any errors, precomputed DNA embeddings for all SNPs 
 and set up runs in parallel. The analysis also required preprocessing of the hQTL datasets. See [reproducing_hQTL_SNP_effect_prediction](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_hQTL_SNP_effect_prediction.ipynb) 
 for details and related scripts.
 

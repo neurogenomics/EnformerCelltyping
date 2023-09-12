@@ -138,8 +138,10 @@ model_results/*
 enformer_celltyping/
 enformer_celltyping/*
 EnformerCelltyping/enformer_celltyping_weights
-EnformerCelltyping/enformer_celltyping_weights\
-EnformerCelltyping/enformer_celltyping_weights\*
+EnformerCelltyping/enformer_celltyping_weights/
+EnformerCelltyping/enformer_celltyping_weights/*
+EnformerCelltyping/enformer_celltyping_split
+EnformerCelltyping/enformer_celltyping_split.h5
 data/h*
 data/e*
 data/a*
