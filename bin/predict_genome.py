@@ -2,6 +2,7 @@ import argparse
 from tqdm import tqdm
 import pyBigWig
 import numpy as np
+import os
 
 #pass inputs
 # argv
