@@ -9,7 +9,6 @@ dependencies:
   - pyarrow
   - seaborn
   - ipykernel
-  - pybigwig
   - requests   
   - parallel
   - cudatoolkit
@@ -20,7 +19,7 @@ dependencies:
     - markdown
     - CrossMap
     - deeptools
-    - numpy
+    - numpy==1.19.5
     - omegaconf
     - wandb
     #enformer dependencies
@@ -28,3 +27,4 @@ dependencies:
     - kipoiseq==0.5.2
     - tensorflow==2.5.0 
     - tensorflow-hub==0.11.0
+    - pybigwig==0.3.22
