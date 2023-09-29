@@ -141,7 +141,7 @@ def download_Enformer_Celltyping_weights() -> None:
     """
     folder_name = PROJECT_PATH / 'EnformerCelltyping'
     enf_cell = ("enformer_celltyping_weights.zip",
-            "https://figshare.com/ndownloader/files/42284337")
+            "https://figshare.com/ndownloader/files/42507979")
     download_file(enf_cell,folder_name,extension=False)
     #now unzip
     zip_pth = str(PROJECT_PATH / 'EnformerCelltyping' / 'enformer_celltyping_weights.zip')
@@ -193,17 +193,17 @@ if __name__ == '__main__':
     print(datetime.now())
     print("There are {} CPUs on this machine ".format(cpu_count()))
     #download DNA bigWigs
-    for exp_type in ['dna']:
-        print("Downloading {exp_type}".format(exp_type=exp_type))
-        download_bigwigs(exp_type)
+    #for exp_type in ['dna']:
+    #    print("Downloading {exp_type}".format(exp_type=exp_type))
+    #    download_bigwigs(exp_type)
     #download encode blacklist regions
-    download_blacklist_regions()
+    #download_blacklist_regions()
     #download avg chromatin accessibility bigWigs
-    download_avg_chromatin_accessibility()
+    #download_avg_chromatin_accessibility()
     #download microglia data
-    download_nott_19_chrom_access()
+    #download_nott_19_chrom_access()
     #download enformer from tensorflow hub
-    download_enformer()
+    #download_enformer()
     # download Enformer Celltyping weights
     download_Enformer_Celltyping_weights()
     print("All downloads complete")
