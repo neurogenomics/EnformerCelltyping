@@ -103,7 +103,7 @@ and set up runs in parallel. The analysis also required preprocessing of the hQT
 for details and related scripts.
 
 
-## Reproducing Cell type motif enrichment
+## Reproducing cell type motif enrichment
 
 Reproducing the cell type motif enrichment analysis from our paper includes predicting 
 across the entire genome for cell types as explained in [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb). 
