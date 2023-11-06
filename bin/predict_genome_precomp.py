@@ -15,6 +15,8 @@ def get_args():
     parser.add_argument('-b', '--batch_size', default=64, type=int, help='Number of predictions to make in one pass')
     parser.add_argument('-d', '--dna_embed_dir', default="./data/dna_embed", type=str, 
                         help='Path to output for DNA embeddings') 
+    paser.add_argument('-g', '--global_CA',default=1,type=int, 
+                       help='Whether to use the global signal of chromatin accessibility (CA), default is True (1), set to 0 for False')
     args = parser.parse_args()
     return args
 
@@ -24,6 +26,7 @@ cell = args.cell.strip()
 out_pth = args.output_dir.strip()
 dna_embed_pth = args.dna_embed_dir.strip()
 chrom_access_pth = args.path_chrom_access.strip()
+global_CA = args.global_CA
 
 #Ensure path to chrom access exists
 assert os.path.exists(chrom_access_pth), f"Path to Chromatin accessibility file incorrect: '{chrom_access_pth}'. Update -p input"
@@ -93,6 +96,10 @@ pred_bigwigs = {i:pyBigWig.open(out_pth+f"{cell}_{i}.bigWig", "w") for i in hist
 for hist_i,hist in enumerate(hist_marks):
     pred_bigwigs[hist].addHeader(list(zip(CHROMOSOMES,CHROM_LEN)))
 
+if global_CA==0:
+    print("-g global_CA set to 0, ignoring global chromatin accessibility signal")
+    
+    
 #loop through chormosomes
 for ind,chro in enumerate(tqdm(CHROMOSOMES)):
     print('Chromosome: ',chro)
@@ -116,10 +123,9 @@ for ind,chro in enumerate(tqdm(CHROMOSOMES)):
             multi_X_gbl = tf.concat([multi_X_gbl,tf.stack(X['chrom_access_gbl'])],axis=0)
         #now pred    
         if batch_count==batch_size:
-            ## remove!!!
-            #make global CA all zeros
-            #print("Global ATAC set to Zero")
-            #multi_X_gbl = tf.zeros(multi_X_gbl.shape, tf.float32)
+            if global_CA==0:
+                #make global CA all zeros
+                multi_X_gbl = tf.zeros(multi_X_gbl.shape, tf.float32)
             #predict
             pred = model.predict({"dna":multi_X_dna,
                                   "chrom_access_lcl":multi_X_lcl,
@@ -139,9 +145,9 @@ for ind,chro in enumerate(tqdm(CHROMOSOMES)):
         strt = strt + TARGET_BP
     #need to check didn't partially fill batch size when ended
     if batch_count>1:
-        ## remove!!!
-        #make global CA all zeros
-        #multi_X_gbl = tf.zeros(multi_X_gbl.shape, tf.float32)
+        if global_CA==0:
+            #make global CA all zeros
+            multi_X_gbl = tf.zeros(multi_X_gbl.shape, tf.float32)
         #predict remainder
         pred = model.predict({"dna":multi_X_dna,
                               "chrom_access_lcl":multi_X_lcl,

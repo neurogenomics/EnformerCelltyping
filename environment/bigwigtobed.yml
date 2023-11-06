@@ -1,0 +1,41 @@
+name: bigwigtobed
+channels:
+  - defaults
+  - bioconda
+  - conda-forge
+dependencies:
+  - _libgcc_mutex=0.1=conda_forge
+  - _openmp_mutex=4.5=2_kmp_llvm
+  - ca-certificates=2023.7.22=hbcca054_0
+  - gdbm=1.18=hd4cb3f1_4
+  - homer=4.11=pl5262h9f5acd7_8
+  - ld_impl_linux-64=2.38=h1181459_1
+  - libedit=3.1.20221030=h5eee18b_0
+  - libffi=3.4.4=h6a678d5_0
+  - libgcc=7.2.0=h69d50b8_2
+  - libgcc-ng=13.2.0=h807b86a_1
+  - libidn2=2.3.4=h5eee18b_0
+  - libnsl=2.0.0=h5eee18b_0
+  - libpng=1.6.39=h5eee18b_0
+  - libstdcxx-ng=13.2.0=h7e041cc_1
+  - libunistring=0.9.10=h27cfd23_0
+  - libuuid=2.38.1=h0b41bf4_0
+  - libzlib=1.2.13=hd590300_5
+  - llvm-openmp=14.0.6=h9e868ea_0
+  - mysql-connector-c=6.1.6=2
+  - ncurses=6.4=h6a678d5_0
+  - openssl=3.1.4=hd590300_0
+  - parallel=20230922=ha770c72_0
+  - perl=5.34.0=h5eee18b_2
+  - pip=23.2.1=pyhd8ed1ab_0
+  - python=3.7.12=hf930737_100_cpython
+  - readline=8.2=h5eee18b_0
+  - setuptools=68.2.2=pyhd8ed1ab_0
+  - sqlite=3.41.2=h5eee18b_0
+  - tk=8.6.12=h1ccaba5_0
+  - ucsc-bigwigtobedgraph=448=h2a80c09_0
+  - unzip=6.0=h611a1e1_0
+  - wget=1.21.4=h251f7ec_1
+  - wheel=0.38.4=py37h06a4308_0
+  - xz=5.4.2=h5eee18b_0
+  - zlib=1.2.13=hd590300_5

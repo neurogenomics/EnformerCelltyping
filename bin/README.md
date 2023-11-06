@@ -43,10 +43,16 @@ for Enformer Celltyping.
   done before running the process_qtl_as_sumstats.py script.
 * mke_sldp_train_data_arr.py - Precomputes the DNA embedding and chromatin accessibility data for all
   ~860k unique SNPs from the BLUEPRINT hQTL datsets. This is set up to be run in parallel using the 
-  `./metadata/create_sldp_train_dat.txt` file. See [reproducing_hQTL_SNP_effect_prediction](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_hQTL_SNP_effect_prediction.ipynb) for more details.
+  `./metadata/create_sldp_train_dat.txt` file. See [reproducing_hQTL_SNP_effect_prediction](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_hQTL_SNP_effect_prediction.ipynb) 
+  for more details.
 * pred_snp_effect_checkpoint_arr.py - Predict the effect of genetic variants for a chosen cell type and 
-hQTL dataset, making use of the precomputed DNA embeddings and saving the predicted effects so they can
-be used in other hQTL predictions for the same cell type.
+  hQTL dataset, making use of the precomputed DNA embeddings and saving the predicted effects so they can
+  be used in other hQTL predictions for the same cell type.
 * pred_snp_effect_all_qtl_arr.py - Predict the effect of genetic variants for a chosen cell type and
-the unique genetic variants from all hQTL datasets, making use of the precomputed DNA embeddings and 
-saving the predicted effects. This can be used in combination with red_snp_effect_checkpoint_arr.py. 
+  the unique genetic variants from all hQTL datasets, making use of the precomputed DNA embeddings and 
+  saving the predicted effects. This can be used in combination with red_snp_effect_checkpoint_arr.py. 
+* motif_analysis(.py and .sh) - bash and python script to preprocess and run motif analysis using homer,
+  see [reproducing_cell_type_motif_enrichment](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_cell_type_motif_enrichment.ipynb) 
+  for more details.
+* cell_type_enrichment.R - Run cell type enrichment with [EWCE](https://www.frontiersin.org/articles/10.3389/fnins.2016.00016/full). See [reproducing_cell_type_motif_enrichment](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_cell_type_motif_enrichment.ipynb)
+  for more details.  
