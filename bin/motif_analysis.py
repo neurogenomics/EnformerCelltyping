@@ -30,8 +30,8 @@ cell=args.cell
 
 SAVE_PATH = pathlib.Path("./model_results")
 pred_res = 128
-top_x = .1#.2
-bot_x = .02#.1#.02
+top_x = .1
+bot_x = .01
 
 #load values and get diff
 for hist_i in labels:
