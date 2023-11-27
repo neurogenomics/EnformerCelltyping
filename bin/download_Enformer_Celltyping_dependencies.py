@@ -32,7 +32,6 @@ import os
 import errno
 from typing import List
 import pandas as pd
-from pyarrow import csv
 from functools import partial
 import pathlib
 from multiprocessing import Pool, cpu_count
@@ -193,17 +192,17 @@ if __name__ == '__main__':
     print(datetime.now())
     print("There are {} CPUs on this machine ".format(cpu_count()))
     #download DNA bigWigs
-    #for exp_type in ['dna']:
-    #    print("Downloading {exp_type}".format(exp_type=exp_type))
-    #    download_bigwigs(exp_type)
+    for exp_type in ['dna']:
+        print("Downloading {exp_type}".format(exp_type=exp_type))
+        download_bigwigs(exp_type)
     #download encode blacklist regions
-    #download_blacklist_regions()
+    download_blacklist_regions()
     #download avg chromatin accessibility bigWigs
-    #download_avg_chromatin_accessibility()
+    download_avg_chromatin_accessibility()
     #download microglia data
-    #download_nott_19_chrom_access()
+    download_nott_19_chrom_access()
     #download enformer from tensorflow hub
-    #download_enformer()
+    download_enformer()
     # download Enformer Celltyping weights
     download_Enformer_Celltyping_weights()
     print("All downloads complete")
