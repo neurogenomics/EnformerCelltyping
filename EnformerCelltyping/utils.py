@@ -2952,29 +2952,60 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
                                                  'snp_pos','pred_strt',
                                                  'pred_end'])
     tmp['col'] = np.where(tmp['variable'].isin(['pred_strt','pred_end']), 
-                          'Pred Wind', 'Input Wind')
+                          'Pred\nWindow', 'Input\nWindow')
     #update colour so snp different
     tmp['colour'] = np.where(tmp['variable'].isin(['snp_pos']), 
                              len(set(tmp['id'])), tmp['id'])
+    #change style for SNP
+    tmp['styl'] = np.where(tmp['variable']=='snp_pos','X','O')
     g = sns.FacetGrid(tmp, col="id",hue="colour",col_wrap=len(dna_strt))
-    #g = plt.scatter(y=tmp['value'], x=tmp['col'],c=tmp['id'])
-    g.map(sns.scatterplot, 'col', 'value')
-    # There is no labels, need to define the labels
-    legend_labels  = ['position '+str(x//2) if (x%2==0) else 'SNP' for x in range(len(set(tmp['id']))*2)]
-    g.add_legend(title='', labels=legend_labels)
+    g.map(sns.scatterplot, 'col', 'value',s=80,style=tmp["styl"],hue=tmp["colour"],palette="Set2")
     pos = snp_pos_real[0]
+    #get lines connecting
+    tmp2 = tmp[tmp['variable']!='snp_pos']
+    tmp2_pw = tmp2[tmp2['col']=='Pred\nWindow']
+    tmp2 = tmp2[tmp2['col']!='Pred\nWindow']
+    tmp2['value2'] = tmp2_pw['value'].values
+    tmp2.sort_values('id',inplace=True)
+    tmp2.reset_index(inplace=True)
+    #func to get at each col
+    def const_line(data, **kws):
+        id_run = data['id'].values[0]
+        var_run = data['variable'].values[0]
+        pal = list(sns.color_palette("Set2"))
+        if var_run!='snp_pos':
+            dat_i = tmp2[tmp2['id']==id_run]
+            for index, row in dat_i.iterrows():
+                col_index = index//2
+                x = np.array([row['value'], row['value2']])
+                y = np.array([0,1])
+                plt.plot(y, x,c=pal[col_index])
+                #also add legend
+                if index+1==tmp2[tmp2['id']==id_run].shape[0]:
+                    plt.text(1, .5, '   - SNP', 
+                             transform=plt.gcf().transFigure,
+                             fontdict={'size': 12},
+                             bbox={'facecolor': 'none','edgecolor': 'white','pad':5.5})
+                    plt.text(1, .503, 'x', 
+                             transform=plt.gcf().transFigure,
+                             weight="bold",
+                             fontdict={'size': 12},
+                             color=pal[len(set(tmp['id']))],#len(set(tmp['id']))+
+                             bbox={'facecolor': 'none','edgecolor': 'white','pad':5.5})
+    g.map_dataframe(const_line)
+    # add receptive field lines
     g.map(plt.axhline, 
           y=pos - window_size_dna//2, 
-          ls='--', c='red')
+          ls='--', c='#ffa5a1')
     g.map(plt.axhline, 
           y=pos + window_size_dna//2, 
-          ls='--', c='red')
+          ls='--', c='#ffa5a1')
     g.set_axis_labels("")
     g.set_axis_labels(x_var="", y_var="Genomic location")
     g.set_titles("Prediction {col_name}")
     #format genomic position numbers
     for axes in g.axes.flat:
-        axes.set_yticklabels(['{:,.1f}'.format(x) + 'M' for x in axes.get_yticks()/1_000_000])
+        axes.set_yticklabels(['{:,.1f}'.format(x) + 'M' for x in axes.get_yticks()/1_000_000])   
     return g
        
     
