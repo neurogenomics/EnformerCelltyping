@@ -2436,7 +2436,7 @@ def _run_mut_enf_celltyping(model, mutation_pos: int,
         random_dna = BASE_PAIRS[
             np.random.choice(BASE_PAIRS.shape[0], size=seq_length)
         ][np.newaxis, :, :]
-        #all raw input data will be averaged at 25bp - output from MACS2
+        #Have to simulate chrom access signal too
         rand_chro_access_lcl = np.array(np.random.random((1, window_size_lcl//pred_res)), 
                                         dtype=np.float32)
         rand_chro_access_gbl = np.array(np.random.random((1, window_size_gbl//250)), 
