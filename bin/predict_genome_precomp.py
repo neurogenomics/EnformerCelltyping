@@ -15,7 +15,7 @@ def get_args():
     parser.add_argument('-b', '--batch_size', default=64, type=int, help='Number of predictions to make in one pass')
     parser.add_argument('-d', '--dna_embed_dir', default="./data/dna_embed", type=str, 
                         help='Path to output for DNA embeddings') 
-    paser.add_argument('-g', '--global_CA',default=1,type=int, 
+    parser.add_argument('-g', '--global_CA', default=1, type=int, 
                        help='Whether to use the global signal of chromatin accessibility (CA), default is True (1), set to 0 for False')
     args = parser.parse_args()
     return args
