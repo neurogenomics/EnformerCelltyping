@@ -3900,3 +3900,526 @@ def predict_snp_effect_sldp_checkpoint(model, alt: str, cell: str, chro: str,
         agg_eff = np.mean(np.vstack(eff),axis=0)
         return(agg_eff)
     
+
+    #tf keras model
+def create_enformer_celltyping(path: str, output_channels: int = 6, 
+                               embedding_pos: int = 1_125_000,
+                               n_250bp_factors: int = 40, n_5kbp_factors: int = 45,
+                               dropout_rate: float = 0.4, w: int = 14,
+                               pre_trained_enf_celltyping: bool = True,
+                               enf_celltyping_weight_pth: str = "./dna_hist_mark_pred/enf_celltyping_weights",
+                               silence_tf_warnings: bool = True,
+                               test_against_tf_hub: bool = True
+                              ):
+    """
+    Lift weights from pre-trained Enformer model available in tf.hub
+    and create tf keras Enformer Celltyping model so that it can be used 
+    for fine-tuning. Only specific layer weights will be lifted, 
+    corresponding to: 
+    
+    1. Stem 
+    2. Conv Tower 
+    3. Transformer with relative positional encodings
+    4. Crop. 
+    
+    Arguments:
+    path: Path to downloaded tf hub enformer model.
+    output_channels: number of output assays (histone marks) to predict.
+    embedding_pos: number of base-pair positions to use for cell type embedding.
+    dropout rate: Used for added layers on top of pre-trained Enformer model.
+    w: width of convolutions
+    pre_trained_enf_celltyping: Whether to return Enformer Celltyping after the
+    training described in our manuscript
+    enf_celltyping_weight_pth: path to the wieghts of enformer celltyping to be 
+    loaded if pre_trained_enf_celltyping is True.
+    silence_tf_warnings: converting Enformer to a Keras Tensorflow model results in TF
+    warnings being logged. This is avoided by silencing TF warnings when this is True.
+    Change to False if you want to keep the TF warnings.
+    test_against_tf_hub: whether to test accuracy of recreated model 
+    
+    Returns Enformewr Celltyping model
+    """
+    #can't change, same as Enformer - DNA input window, ~100kbp either side
+    window_size = 196_608 
+    
+    #create full enformer model then remove top layers
+    enf = create_enf_model(path,test_against_tf_hub)
+    #approach remove top layers after MHA, retrain these with cell type embedding
+    #first make a keras version of Enformer so it has layers
+    inputs = tf.keras.layers.Input(shape = (window_size,4), name='inputLayer')
+    #silencing warnings over the diff in types
+    if silence_tf_warnings:
+        tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+    outputs = enf(inputs, is_training = False)['human']
+    enf_ker = tf.keras.Model(inputs, outputs, name = "Enf")
+    #now chop off layers after MHA
+    enf_chopped = tf.keras.Model(enf_ker.input, enf_ker.layers[945-1].output,name = "EnfChopped")
+    #(None, 896, 1536)
+    #cut-off pointwise and output heads
+    #add in cell type specific info
+    enf_chopped.trainable=False
+    #Inputs - dna and embeddings
+    inputs = dict(
+        dna= tf.keras.layers.Input(
+            shape=(window_size, 4),
+            name='dnaInput'
+        ),
+        #250 embed
+        chrom_access_250= tf.keras.layers.Input(
+            shape=(embedding_pos//250,),
+            name='ChromAccessEmbed250Input'
+        )
+    )
+
+    #Enformer dna transformer --------------------------------------
+    x = enf_chopped(inputs['dna'],training = False)
+    #save num output pos
+    enf_out_channels = x.shape[2]
+
+    #Chrom Access Embedding ----------------------------------------
+    #Embedding - get embedded factors and flatten
+    embed250 = tf.keras.layers.Embedding(embedding_pos//250,
+                                         n_250bp_factors,
+                                         input_length=1, 
+                                         name="250bp_embedding")(inputs['chrom_access_250'])
+    embed5k = tf.keras.layers.Embedding((embedding_pos//5000)+1,
+                                        n_5kbp_factors,
+                                        input_length=1, 
+                                        name="5kbp_embedding")(inputs['chrom_access_250'])
+    #flatten
+    embed250 = tf.keras.layers.Flatten(name="flatten250")(embed250)
+    embed5k = tf.keras.layers.Flatten(name="flatten5k")(embed5k)
+    #combine
+    cat_embed = tf.keras.layers.Concatenate(axis=1,
+                                            name="cat_embed")([embed250,
+                                                               embed5k])                          
+    #2 dense layers - mimic Avocado - keep input shape the same
+    cat_embed = tf.keras.layers.Dense(enf_out_channels, activation=gelu, 
+                                      name="dense_combn1")(cat_embed)
+    #dropout
+    cat_embed = tf.keras.layers.Dropout(dropout_rate/16)(cat_embed)
+    #second dense layer
+    cat_embed = tf.keras.layers.Dense(enf_out_channels, activation=gelu, 
+                                      name="dense_combn2")(cat_embed)
+    #dropout
+    cat_embed = tf.keras.layers.Dropout(dropout_rate/16)(cat_embed)
+    #now let's repeat these values for each output channel - first add dim
+    cat_embed = tf.expand_dims(cat_embed, 1)
+    #repeat values
+    cat_embed = tf.tile(cat_embed,[1,x.shape[1],1])
+
+    #Join embeddings to enf output ----------------------------------
+    #1 set per channel
+    x = tf.keras.layers.concatenate([x,cat_embed],axis=2)
+    #Bring down size through convolutions
+    #conv block from Enformer -------
+    #x = gelu(x)
+    ##conv
+    #x = tf.keras.layers.Conv1D(filters=enf_out_channels,kernel_size=w)(x)
+    ##----
+    ##conv block from Enformer -------
+    #x = gelu(x)
+    ##conv
+    #x = tf.keras.layers.Conv1D(filters=enf_out_channels//2,kernel_size=w)(x)
+    #----
+    #Imitate final_pointwise from Enformer/Basenji2
+    #conv block-------
+    x = gelu(x)
+    #conv
+    x = tf.keras.layers.Conv1D(filters=enf_out_channels//4,kernel_size=1)(x)
+    #----
+    #final_pointwise-----
+    #dropout
+    x = tf.keras.layers.Dropout(dropout_rate/8)(x)
+    x = gelu(x)
+    #----
+
+    #Output Layer ----------------------------------
+    #linear layer for output
+    outputs = tf.keras.layers.Dense(output_channels,name="out_lin")(x)
+    model = tf.keras.Model(inputs, outputs, name = "EnfCelltyping")
+    
+    #loading weights?
+    if pre_trained_enf_celltyping:
+        model.load_weights(filepath=enf_celltyping_weight_pth)
+    
+    return(model)
+
+
+WINDOW_SIZE_DNA = 196_608
+#output from chopped enformer model
+ENF_CHANNELS = 1536
+ENF_PRED_POS = 896
+GBL_EMBED_BP = 1216*3_000 #PanglaoDB 1216 marker genes, 3k around TSS
+
+def build_ec_embed_atac(window_size_CA: int= 1562*128, 
+                        n_128bp_factors: int = 25,
+                        n_500bp_factors: int = 40,
+                        n_5kbp_factors: int = 45,
+                        n_gbl_factors: int =25
+                        ):
+    """
+    Use this to build the Enformer Celltyping model either with a
+    new architecture or by loading a previous model.
+    
+    Arguments:
+    
+    window_size_CA: 
+        The number of base-pair positions used to embed the cell
+        type representations by chromatin accessibility. The default is 
+        1562*128 bp.
+    
+    n_128bp_factors:
+        The number of factors used to represent the genome local cell 
+        type embedding at 128bp resolution. Default is 25.
+    
+    n_500bp_factors: 
+        The number of factors used to represent the genome local cell 
+        type embedding at 250bp resolution. Default is 40.
+    
+    n_5kbp_factors: 
+        The number of factors used to represent the genome local cell 
+        type embedding at 5,000bp resolution. Default is 45.
+    
+    n_gbl_factors:    
+        The number of factors used to represent the genome global cell 
+        type embedding at 250bp resolution. Default is 25.  
+    
+    ENF_CHANNELS,ENF_PRED_POS:
+        output shape of chopped Enformer model
+    GBL_EMBED_BP:
+        size in base-pairs of the global chromatin acessibility embedding   
+    """
+    
+    # define new model architecture
+    inputs = dict(
+        dna= tf.keras.layers.Input(
+            shape=(ENF_PRED_POS, ENF_CHANNELS),
+            name='dnaInput'
+        ),
+        #local chrom access embed
+        chrom_access_lcl= tf.keras.layers.Input(
+            shape=(window_size_CA//128,),
+            name='ChromAccessLclInput'
+        ),
+        #global chrom access embed
+        chrom_access_gbl= tf.keras.layers.Input(
+            shape=(GBL_EMBED_BP//250,),
+            name='ChromAccessGblInput'
+        )
+    )
+    #------------------------------------
+
+    max_abs_diff = 5
+    norm_chrom_access = tf.add(tf.clip_by_value(inputs['chrom_access_lcl'],
+                                                clip_value_min=-max_abs_diff, 
+                                                clip_value_max=max_abs_diff),
+                                max_abs_diff)
+    #Embedding - get embedded factors and flatten
+    embed128 = tf.keras.layers.Embedding(window_size_CA//128,
+                                         n_128bp_factors,
+                                         input_length=1,
+                                         name="128bp_embedding")(norm_chrom_access)
+    embed500 = tf.keras.layers.Embedding((window_size_CA//(128*4))+1,
+                                         n_500bp_factors,
+                                         input_length=1,
+                                         name="500bp_embedding")(norm_chrom_access)
+    embed5k = tf.keras.layers.Embedding((window_size_CA//(128*40))+1,
+                                        n_5kbp_factors,
+                                        input_length=1,
+                                        name="5kbp_embedding")(norm_chrom_access)
+    
+    #Embed global
+    embedGbl = tf.keras.layers.Embedding(GBL_EMBED_BP//250,
+                                         n_gbl_factors,
+                                         input_length=1,
+                                         name="gbl_embedding")(inputs['chrom_access_gbl'])
+    
+    model = tf.keras.Model(inputs, [embed128,embed500,embed5k,embedGbl], name = "EnfCelltyping_embd")
+    
+    return(model)
+
+def build_ec_aftr_embed(window_size_CA: int= 1562*128,
+                        n_128bp_factors: int = 25,
+                        n_500bp_factors: int = 40,
+                        n_5kbp_factors: int = 45,
+                        n_gbl_factors: int =25, 
+                        dropout_rate: float = 0.4,
+                        ct_embed_nodes: int = 3072,
+                        dna_nodes: int = 1536,
+                        n_dense_dna: int = 1,
+                        n_dense_ct: int = 2,
+                        pointwise_nodes_dna: int = 3072,
+                        output_activation_dna: str ="softplus",
+                        output_activation_ct: str ="linear",
+                        output_channels: int = 6,
+                        n_quants: int = 10
+                        ):
+    """
+    Use this to build the Enformer Celltyping model either with a
+    new architecture or by loading a previous model.
+    
+    Arguments:
+    
+    window_size_CA: 
+        The number of base-pair positions used to embed the cell
+        type representations by chromatin accessibility. The default is 
+        1562*128 bp.
+    
+    n_128bp_factors:
+        The number of factors used to represent the genome local cell 
+        type embedding at 128bp resolution. Default is 25.
+    
+    n_500bp_factors: 
+        The number of factors used to represent the genome local cell 
+        type embedding at 250bp resolution. Default is 40.
+    
+    n_5kbp_factors: 
+        The number of factors used to represent the genome local cell 
+        type embedding at 5,000bp resolution. Default is 45.
+    
+    n_gbl_factors:    
+        The number of factors used to represent the genome global cell 
+        type embedding at 250bp resolution. Default is 25. 
+    
+    dropout_rate: 
+        The level of dropout used throughout architecture. The
+        default is 0.4.
+        
+    ct_embed_nodes:
+        The size of dense layer used for cell type embedding. The
+        default is 3072.
+        
+    dna_nodes:
+        The size of the dense layer used for DNA embedding. Default is 
+        1536.
+        
+    n_dense_dna:
+        The number of dense layer blocks to use for the dna channel. 
+        The default is 1.    
+        
+    n_dense_ct:
+        The number of dense layer blocks to use for the chromatin 
+        accessibility data after embedding. Default is 2.
+        
+    pointwise_nodes_dna:
+        The output number of nodes for the pointwise convolution for the
+        DNA channel. If less than input size, dimensionality reduction. 
+        Default is 3072.
+        
+    output_activation_dna:
+        The activation to use for the final output dense layer for the DNA
+        channel. Default is softplus.
+    
+    output_activation_ct:
+        The activation to use for the final output dense layer for the cell
+        typing channel. Default is linear.
+    
+    output_channels:
+        The number of output channels (e.g. histone marks) to predict by 
+        the model. The default is 6 corresponding to the 6 histone marks
+        Enformer Celltyping was trained on: 
+        ['h3k27ac', 'h3k4me1', 'h3k27me3', 'h3k4me3', 'h3k36me3' and 'h3k9me3']
+    
+    pred_quantiles:
+        Boolean. Whether to predict quantile distributions of average histone
+        mark signal with DNA module. Default is False
+        
+    n_quants: 
+        Integer. Number of quantiles to use. Default is deciles - 10.    
+    
+    ENF_CHANNELS,ENF_PRED_POS:
+        output shape of chopped Enformer model
+    GBL_EMBED_BP:
+        size in base-pairs of the global chromatin acessibility embedding   
+    """
+    #else define new model architecture
+    inputs = dict(
+        dna= tf.keras.layers.Input(
+            shape=(ENF_PRED_POS, ENF_CHANNELS),
+            name='dnaInput'
+        ),
+        #local chrom access embed
+        chrom_access_lcl1= tf.keras.layers.Input(
+            shape=(window_size_CA//128,n_128bp_factors,),
+            name='ChromAccessLclInput1'
+        ),
+        #local chrom access embed
+        chrom_access_lcl2= tf.keras.layers.Input(
+            shape=(window_size_CA//128,n_500bp_factors,),
+            name='ChromAccessLclInput2'
+        ),
+        #local chrom access embed
+        chrom_access_lcl3= tf.keras.layers.Input(
+            shape=(window_size_CA//128,n_5kbp_factors),
+            name='ChromAccessLclInput3'
+        ),
+        #global chrom access embed
+        chrom_access_gbl= tf.keras.layers.Input(
+            shape=(GBL_EMBED_BP//250,n_gbl_factors,),
+            name='ChromAccessGblInput'
+        )
+    )
+    #------------------------------------
+    #Embedding done...
+    
+    #flatten
+    embed128 = tf.keras.layers.Flatten(name="flatten128")(inputs['chrom_access_lcl1'])
+    embed500 = tf.keras.layers.Flatten(name="flatten500")(inputs['chrom_access_lcl2'])    
+    embed5k = tf.keras.layers.Flatten(name="flatten5k")(inputs['chrom_access_lcl3'])
+    embedGbl = tf.keras.layers.Flatten(name="flattenGbl")(inputs['chrom_access_gbl'])
+    #combine        
+    cat_embed = tf.keras.layers.Concatenate(
+                                            name="cat_embed")([embed128,
+                                                               embed500,
+                                                               embed5k,
+                                                               embedGbl])
+    #2 dense layers - mimic Avocado - keep input shape the same
+    for i in range(1,n_dense_ct+1):
+        cat_embed = tf.keras.layers.Dense(ct_embed_nodes, activation=gelu, 
+                                          name=f"dense_combn{i}_celltype")(cat_embed)
+        #dropout
+        cat_embed = tf.keras.layers.Dropout(dropout_rate/16,#8, #4,
+                                           name=f"dropout{i}_celltype")(cat_embed)
+    
+    all_chan = []
+    for i in range(1,output_channels+1):
+        cat_embed2 = tf.keras.layers.Dense(ENF_PRED_POS, activation=output_activation_ct,
+                                               name=f"dense_chan_celltype_{i}")(cat_embed)
+        #rmv DO
+        #cat_embed2 = tf.keras.layers.Dropout(dropout_rate/16,#8,#4,
+        #                                     name=f"dropout_chan_celltype_{i}")(cat_embed2)
+        #expand dim add dim at end
+        cat_embed2 = tf.expand_dims(cat_embed2, axis=-1)
+        #append channel
+        all_chan.append(cat_embed2)
+    
+    output_delta = tf.keras.layers.concatenate(all_chan, axis=2,name="delta")
+    
+    #------------------------------------
+
+    #------------------------------------
+    #DNA arch
+    x = inputs['dna']
+    
+    for i in range(1,n_dense_dna+1):
+        #Dense layer (connections on last dimension) so celltype embedding and DNA joined
+        x = tf.keras.layers.Dense(dna_nodes, activation=gelu, 
+                                  name=f"dense{i}_dna")(x)
+        #dropout
+        x = tf.keras.layers.Dropout(dropout_rate/16,
+                                    name=f"dropout{i}_dna")(x)
+    #final_pointwise-----
+    #conv block---
+    x = tf.keras.layers.BatchNormalization(
+        momentum=0.99,epsilon=0.001,
+        center=True,scale=True,
+        name="batchnorm1_finalpoint")(x)
+    #gelu - https://arxiv.org/abs/1606.08415
+    x = gelu(x,name="gelu1_convblck_finalpoint")
+    #conv
+    x = tf.keras.layers.Conv1D(filters=pointwise_nodes_dna,kernel_size=1,
+                               name="conv1d1_finalpoint")(x)
+    #---
+    #dropout
+    x = tf.keras.layers.Dropout(dropout_rate/16,
+                                name="dropout1_finalpoint")(x)
+    #gelu - https://arxiv.org/abs/1606.08415
+    x = gelu(x,name="gelu1_finalpoint")
+    #-----
+        
+    #Dense layer for output
+    output_avg = tf.keras.layers.Dense(output_channels,
+                                           activation=output_activation_dna,name="avg")(x)
+    #------------------------------------
+    
+    #add in quantiles - same arch for Enformer/Avg, just have multiple outputs for quantiles
+    x_quant = inputs['dna']
+
+    for i in range(1,n_dense_dna+1):
+        #Dense layer (connections on last dimension) so celltype embedding and DNA joined
+        x_quant = tf.keras.layers.Dense(dna_nodes, activation=gelu, 
+                                        name=f"dense{i}_quant")(x_quant)
+        #dropout
+        x_quant = tf.keras.layers.Dropout(dropout_rate/16,
+                                            name=f"dropout{i}_quant")(x_quant)
+    #final_pointwise-----
+    #conv block---
+    x_quant = tf.keras.layers.BatchNormalization(
+        momentum=0.99,epsilon=0.001,
+        center=True,scale=True,
+        name="batchnorm1_finalpoint_quant")(x_quant)
+    #gelu - https://arxiv.org/abs/1606.08415
+    x_quant = gelu(x_quant,name="gelu1_convblck_finalpoint_quant")
+    #conv
+    x_quant = tf.keras.layers.Conv1D(filters=pointwise_nodes_dna,kernel_size=1,
+                                        name="conv1d1_finalpoint_quant")(x_quant)
+    #---
+    #dropout
+    x_quant = tf.keras.layers.Dropout(dropout_rate/16,
+                                        name="dropout1_finalpoint_quant")(x_quant)
+    #gelu - https://arxiv.org/abs/1606.08415
+    x_quant = gelu(x_quant,name="gelu1_finalpoint") 
+    #-----
+    
+    all_quant = []
+    for i in range(1,output_channels+1):
+        #use a dense layer of size equal to the number of quantiles for each output channel
+        #use output layer with softmax activation
+        chan_quant = tf.keras.layers.Dense(n_quants, activation='softmax',
+                                            name=f"quant_out_chan_{i}")(x_quant)
+        #expand dim add dim at end
+        chan_quant = tf.expand_dims(chan_quant, axis=2)
+        #append channel
+        all_quant.append(chan_quant)
+    
+    output_quant = tf.keras.layers.concatenate(all_quant, axis=2,name="quant")    
+    #------------------------------------
+    
+    #quant is (None, 896, 6, 10) currently and others are (None, 896, 6). Need to combine
+    #them like (None, 896, 6, 12) - so relative values make sense (i.e. deciles with mean and delta)
+    output_avg = tf.expand_dims(output_avg, axis=3)
+    output_delta = tf.expand_dims(output_delta, axis=3)
+    combn_a_d = tf.keras.layers.Concatenate(name="cat_avg_delta",
+                                        axis=3)([output_avg,output_quant,output_delta])
+    all_combn = []
+    #add dense layers to each output channel (epigenetic mark)
+    for i in range(output_channels):
+        #for each channel - (None, 896, 1, 12)
+        #conv block---
+        chan_i = tf.keras.layers.BatchNormalization(
+            momentum=0.99,epsilon=0.001,
+            center=True,scale=True,
+            name=f"batchnorm1_chan_{i}")(combn_a_d[:,:,i,:])
+        #gelu - https://arxiv.org/abs/1606.08415
+        chan_i = gelu(chan_i,name=f"gelu1_convblck_chan_{i}")
+        #conv - increase size same as for quant/dna
+        chan_i = tf.keras.layers.Conv1D(filters=chan_i.shape[2]*8,kernel_size=1,
+                                    name=f"conv1d1_chan_{i}")(chan_i)
+        #---
+        #dropout
+        chan_i = tf.keras.layers.Dropout(dropout_rate/16,
+                                    name=f"dropout1_chan_{i}")(chan_i)
+        #gelu - https://arxiv.org/abs/1606.08415
+        chan_i = gelu(chan_i,name="gelu1_chan_{i}")
+        #-----
+        #then just flatten
+        flat_chan = tf.keras.layers.Flatten(name=f"flatten_chan_{i}")(chan_i)#(combn_a_d[:,:,i,:])
+        #dense layer 1
+        #x_i = tf.keras.layers.Dense(896, activation=gelu,
+        #        name=f"dense_avg_delta1_channel{i}")(flat_chan)
+        #x_i = tf.keras.layers.Dropout(dropout_rate/4,name=f"dropout1_avg_delta_channel{i}")(x_i)
+        #output layer
+        x_i = tf.keras.layers.Dense(ENF_PRED_POS,activation="softplus",
+                                    name=f"avg_delta_out_channel{i}")(flat_chan)#(x_i)
+        #expand dim add dim at end
+        x_i = tf.expand_dims(x_i, axis=-1)
+        #append channel
+        all_combn.append(x_i)
+            
+   
+
+        output_combn = tf.keras.layers.concatenate(all_combn, axis=2,name="cat_combn_avg_delta")    
+        model = tf.keras.Model(inputs, output_combn, name = "EnformerCelltyping")
+
+    return(model)

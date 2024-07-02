@@ -107,9 +107,9 @@ for details and related scripts.
 
 Reproducing the cell type motif enrichment analysis from our paper includes predicting 
 across the entire genome for cell types as explained in [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb). 
-However, this also requires predicting genome-wide without the global chromatin accessibility signal.
-We then compare the signals identify peaks that rely the most on the global signal, do motif 
-enrichment and finally inspect the cell type specificity of the identifed transcription factors.
+We then calculcate the gradient of all peak predicted regions on the global input and compare to identify 
+peaks that rely the most on the global signal, do motif enrichment and finally inspect the 
+cell type specificity of the identifed transcription factors.
 See [reproducing_cell_type_motif_enrichment](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_cell_type_motif_enrichment.ipynb) 
 for details and related scripts.
 

@@ -4,10 +4,12 @@ ewce_plot_extra <- function(total_res,
                             celltype_map,
                             mtc_method = "bonferroni",
                             q_threshold = 0.05,
+                            col_sig = TRUE,
                             ctd = NULL,
                             annotLevel = 1, 
                             heights = c(.3, 1), 
                             widths = c(1,0.05),
+                            tiss_leg_mark_size=5,
                             make_dendro = FALSE,
                             verbose = TRUE) {
   
@@ -81,37 +83,65 @@ ewce_plot_extra <- function(total_res,
   #}
   #pal <- gg_color_hue(length(unique(total_res$col_tiss)))
   print(paste0(length(col_tiss_uniq)," Tissues have a significant association"))
-  if(length(col_tiss_uniq)<=12){
-    pal <- RColorBrewer::brewer.pal(12, "Paired")
-  }else{
-    pal <- c(RColorBrewer::brewer.pal(12, "Paired"),"#F5CDB4","grey")
+  if (col_sig){
+    if(length(col_tiss_uniq)<=12){
+      pal <- RColorBrewer::brewer.pal(12, "Paired")
+    }else{
+      pal <- c(RColorBrewer::brewer.pal(12, "Paired"),"#F5CDB4","grey")
+      #extended_palette = ["#9A8822",,"#F8AFA8",
+      #                    "#FDDDA0","#74A089","#85D4E3",
+      #                    #added extra to make 7
+      #                    '#78A2CC']
+    }  
+    #remove yellow, too bright
+    pal <- c(pal[pal!="#FFFF99"],"#FFD700")
+    uni_tiss_grps <- unique(total_res$col_tiss)
+    pal_dt <- 
+      data.table(
+        col_tiss=sort(uni_tiss_grps[uni_tiss_grps != "Non-Signif\nTissue"]),
+        col=pal[1:length(col_tiss_uniq)])
+    pal_dt <- data.table::rbindlist(list(pal_dt,
+                                         data.table(col_tiss=c("Non-Signif\nTissue"),
+                                                    col=c("black"))))
+    #add on tissue colour info
+    total_res[pal_dt,col:=i.col,on="col_tiss"] 
+    #### Plot ####
+    total_res$sd_from_mean[total_res$sd_from_mean < 0] <- 0
+    #create factor so tissue colours in order
+    col_tiss_ordr <- unique(total_res$col_tiss)
+    col_tiss_ordr <-c(sort(col_tiss_ordr[col_tiss_ordr!="Non-Signif\nTissue"]),
+                      "Non-Signif\nTissue")
+    total_res$col_tiss <-
+      factor(x = total_res$col_tiss,
+             levels = col_tiss_ordr, 
+             ordered = TRUE
+      )
+    data.table::setorderv(total_res,c("list","CellType"))
+    
+    total_res_uniq <- unique(total_res, by = "CellType")
+  }else{ #colour all tissue
+    #colour everything by tissue
+    total_res[,col_tiss:=Tissue]
+    pal <- c(RColorBrewer::brewer.pal(12, "Paired"),"#F5CDB4","grey","brown")
+    #remove yellow, too bright
+    pal <- c(pal[pal!="#FFFF99"],"#FFD700")
+    pal_dt <- data.table(col_tiss=unique(celltype_map$Tissue),col=pal)
+    #add on tissue colour info
+    total_res[pal_dt,col:=i.col,on="col_tiss"]
+    #### Plot ####
+    total_res$sd_from_mean[total_res$sd_from_mean < 0] <- 0
+    #create factor so tissue colours in order
+    col_tiss_ordr <- unique(total_res$col_tiss)
+    col_tiss_ordr <-sort(col_tiss_ordr)
+    total_res$col_tiss <-
+      factor(x = total_res$col_tiss,
+             levels = col_tiss_ordr, 
+             ordered = TRUE
+      )
+    data.table::setorderv(total_res,c("list","CellType"))
+    
+    total_res_uniq <- unique(total_res, by = "CellType")
   }  
-  #remove yellow, too bright
-  pal <- c(pal[pal!="#FFFF99"],"#FFD700")
-  uni_tiss_grps <- unique(total_res$col_tiss)
-  pal_dt <- 
-    data.table(
-      col_tiss=sort(uni_tiss_grps[uni_tiss_grps != "Non-Signif\nTissue"]),
-      col=pal[1:length(col_tiss_uniq)])
-  pal_dt <- data.table::rbindlist(list(pal_dt,
-                                       data.table(col_tiss=c("Non-Signif\nTissue"),
-                                                  col=c("black"))))
-  #add on tissue colour info
-  total_res[pal_dt,col:=i.col,on="col_tiss"] 
-  #### Plot ####
-  total_res$sd_from_mean[total_res$sd_from_mean < 0] <- 0
-  #create factor so tissue colours in order
-  col_tiss_ordr <- unique(total_res$col_tiss)
-  col_tiss_ordr <-c(sort(col_tiss_ordr[col_tiss_ordr!="Non-Signif\nTissue"]),
-                    "Non-Signif\nTissue")
-  total_res$col_tiss <-
-    factor(x = total_res$col_tiss,
-           levels = col_tiss_ordr, 
-           ordered = TRUE
-    )
-  data.table::setorderv(total_res,c("list","CellType"))
-  
-  total_res_uniq <- unique(total_res, by = "CellType")
   graph_theme <- ggplot2::theme_bw(base_size = 11, 
                                    base_family = "Helvetica") +
     ggplot2::theme(
@@ -125,7 +155,7 @@ ewce_plot_extra <- function(total_res,
   #get col legend to add in later
   plt <- ggplot2::ggplot(total_res,
                          ggplot2::aes(x=CellType,y=p,col=col_tiss))+
-    ggplot2::geom_point(size=5)+
+    ggplot2::geom_point(size=tiss_leg_mark_size)+
     ggplot2::scale_colour_manual(values = pal_dt$col)+
     graph_theme+
     ggplot2::theme(
@@ -221,12 +251,29 @@ ewce_plot_extra <- function(total_res,
 library(data.table)
 library(patchwork)
 
-sig_motifs <- fread("./model_results/motif_analysis/all_cells_sig_gbl_motifs.csv")
-back_motifs <- fread("./model_results/motif_analysis/homer_background_tfs.csv")
+sig_motifs <- fread("~/all_cells_sig_gbl_motifs.csv")
+back_motifs <- fread("~/homer_background_tfs.csv")
 
+#get TF for sig motifs
+sig_motifs[, c("TF.1", "TF.2","TF.3") := tstrsplit(`Motif Name`, "/", 
+                                                   fixed=TRUE)]
+sig_motifs[, c("TF", "TF2") := tstrsplit(TF.1, "(", fixed=TRUE)]
+
+#REMOVE MOTIFS IN ALL CELL TYPES TESTED
+unique_cell_motif <- unique(sig_motifs[,c("Motif Name","cell")])
+num_cts <- 7#6
+rmv_motifs <- unique_cell_motif[, .N,by="Motif Name"][N>=num_cts,]$`Motif Name`
+#now remove
+sig_motifs <- sig_motifs[!`Motif Name` %in% rmv_motifs,]
 
 #get cell types to test
 CT <- unique(sig_motifs$cell)
+#get ctd -
+#CTD file with data from adult mouse whole-body atlas. 
+#Uses the Smart-seq2 (FACS) subset of the data and covers a greater number of 
+#cell-types than the Droplet version.
+#Reference: doi:10.1038/s41586-018-0590-4
+#TM_f <- MAGMA.Celltyping::get_ctd("ctd_TabulaMuris_facs")
 #Descartes
 #CTD file with scRNA-seq data from human embryo across multiple organ systems.
 #Reference: doi:10.1126/science.aba7721
@@ -237,7 +284,7 @@ Des <- MAGMA.Celltyping::get_ctd("ctd_DescartesHuman")
 #taken from https://github.com/neurogenomics/rare_disease_celltyping/blob/master/data/DescartesHuman_celltype_mapping.csv
 #rename descartes
 descartes_mappings <- 
-  read.csv("./metadata/DescartesHuman_celltype_mapping.csv") 
+  read.csv("~/Downloads/DescartesHuman_celltype_mapping.csv") 
 descartes_mappings$level1_nice = gsub("_"," ",descartes_mappings$level1) 
 descartes_mappings$level1_nice = gsub("\\."," - ",
                                       descartes_mappings$level1_nice) 
@@ -251,6 +298,16 @@ des_ctd_lvl_cell[descartes_mappings_dt,Tissue:=i.tissue,]
 #rename
 colnames(Des$level_2$mean_exp) <- colnames(Des$level_2$specificity) <-
   colnames(Des$level_2$specificity_quantiles) <- des_ctd_lvl_cell$CellType
+
+#get ctd
+#CTD file derived from adult human cortex scRNA-seq data collected by the Allen 
+#Institute for Brain Science (AIBS) Note that this CTD used an early release of 
+#the AIBS data that only included samples from human 
+#Medial Temporal Gyrus (MTG).
+#Reference: doi:10.1038/s41586-019-1506-7
+#AIB <- MAGMA.Celltyping::get_ctd("ctd_AIBS")
+#allAIB <- MAGMA.Celltyping::get_ctd("AllenBrainInstituteHuman_smartseqv4")
+
 
 res_cells <- vector(mode="list",length=length(CT))
 names(res_cells) <- CT
@@ -355,8 +412,8 @@ for(cell_i in CT){
         )
 
   #run analysis
-  res <- EWCE::bootstrap_enrichment_test(sct_data = Des,
-                                         sctSpecies = "human",
+  res <- EWCE::bootstrap_enrichment_test(sct_data = Des,#TM_f,
+                                         sctSpecies = "human",#"mouse",
                                          genelistSpecies = "human",
                                          hits = hits_i,
                                          bg = backs,
@@ -369,19 +426,88 @@ for(cell_i in CT){
 }
 
 res_cells_dt <- rbindlist(res_cells,idcol = 'list')
-data.table::fwrite(res_cells_dt,
-                   "./model_results/motif_analysis/tf_cell_specificity.csv")
 
+
+#map naming to 'nicer' ontology names - from MultiEWCE
+res_cells_dt[,ctd:="DescartesHuman"]
+
+#func from multiEWCE with slight change
+map_celltype_ME <- function(results,
+                         input_col="CellType",
+                         map = KGExplorer::get_data_package(
+                           package = "MultiEWCE",
+                           name="celltype_maps"),
+                         rm_prefixes=c("Adult","Fetus","HESC"),
+                         by=c("ctd","author_celltype")
+){
+  author_celltype <- NULL;
+  new_cols <- c("cell_type_ontology_term_id","cell_type")
+  if(all(new_cols %in% names(results))) {
+    return(results)
+  }
+  print("Mapping cell types to cell ontology terms.")
+  results[,author_celltype:=gsub(paste(paste0("^",rm_prefixes,"_"),
+                                       collapse = "|"),"",
+                                 get(input_col),ignore.case = TRUE)]
+  if(!all(by %in% names(results))) {
+    stopper("All 'by' columns must be in 'results'.")
+  }
+  #remove _ from map
+  map[,author_celltype:=gsub("_", " ", author_celltype)]
+  results_cl <- data.table::merge.data.table(results,
+                                             map,
+                                             by=by,
+                                             all.x = TRUE)
+  if(sum(is.na(results_cl$cell_type_ontology_term_id))>0){
+    stop("Missing 'cell_type_ontology_term_id' for",
+            sum(is.na(results_cl$cell_type_ontology_term_id))," rows.")
+  }
+  ## Rename cols to make more concise and conform to hpo_id/hpo_name format
+  data.table::setnames(results_cl,
+                       c("cell_type_ontology_term_id","cell_type"),
+                       c("cl_id","cl_name"))
+  return(results_cl)
+}
+
+res_cells_dt_ontol <- map_celltype_ME(res_cells_dt)
+#grouped some cells so rename to make unique
+res_cells_dt_ontol[, counter := seq_len(.N), by = .(list,cl_name)]
+res_cells_dt_ontol[, counter := as.character(counter) ]
+res_cells_dt_ontol[counter!="1", counter := paste0(" ",counter)]
+res_cells_dt_ontol[counter=="1", counter := ""]
+res_cells_dt_ontol[,cl_name_uniq:=paste0(cl_name,counter)]
+#use cl_name for CellType
+res_cells_dt_ontol[,CellType:=cl_name_uniq]
+#add in new cell type naming everywhere
+map <- KGExplorer::get_data_package(package = "MultiEWCE",
+                                    name="celltype_maps")
+map_des <- map[ctd=='DescartesHuman',]
+setkey(map_des,"author_celltype")
+setkey(des_ctd_lvl_cell,"level2")
+des_ctd_lvl_cell[map_des,CellType:=i.cell_type]
+#now add numbers
+des_ctd_lvl_cell[, counter := seq_len(.N), by = .(CellType)]
+des_ctd_lvl_cell[, counter := as.character(counter) ]
+des_ctd_lvl_cell[counter!="1", counter := paste0(" ",counter)]
+des_ctd_lvl_cell[counter=="1", counter := ""]
+des_ctd_lvl_cell[,Celltype_uniq:=paste0(CellType,counter)]
+des_ctd_lvl_cell[,CellType:=Celltype_uniq]
+#also need to update Des
+#rename
+colnames(Des$level_2$mean_exp) <- colnames(Des$level_2$specificity) <-
+  colnames(Des$level_2$specificity_quantiles) <- des_ctd_lvl_cell$Celltype_uniq
 #now plot
-plot_body <- ewce_plot_extra(total_res = res_cells_dt,
+plot_body <- ewce_plot_extra(total_res = res_cells_dt_ontol,
                              celltype_map = des_ctd_lvl_cell,
                              mtc_method = "BH",
+                             col_sig = FALSE,
                              make_dendro = TRUE,
                              annotLevel = 2,
                              ctd = Des,
                              heights = c(0.05,1), 
-                             widths = c(1,0.05)
+                             widths = c(1,0.04),
+                             tiss_leg_mark_size=2.4
                              )
 ggplot2::ggsave(plot_body$withDendro,
-                filename="./model_results/motif_analysis/tf_cell_specificity.pdf",
+                filename="~/Downloads/tf_cell_specificity.pdf",
                 dpi = 1200,width = 16,height = 10, units ="in")

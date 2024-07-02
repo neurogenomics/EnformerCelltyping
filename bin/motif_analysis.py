@@ -1,19 +1,134 @@
 #for each chromosome, find peaks in norm pred and find top 10% of regions 
-#that peaks reduce the most without global
-#Also find 10% of peaks with no to little change
-import pyBigWig
-import pathlib
-import numpy as np
-import os
+#that rely on global signal based on gradients
 
-from dna_hist_mark_pred.constants import (
-    CHROM_LEN, 
+
+#model specifics
+from EnformerCelltyping.utils import(
+    pearsonR, 
+    generate_data,
+    initiate_bigwigs,
+    create_enformer_celltyping,
+    gelu,
+    build_ec_embed_atac,
+    build_ec_aftr_embed
+)
+from tensorflow.keras.metrics import mean_squared_error
+from pathlib import Path
+#import constants
+from generate_data.constants import (
+    CHROM_LEN,
     CHROMOSOMES,
+    DATA_PATH,
     HIST_MARKS)
 
+import os
+import pathlib
+import numpy as np
+import math
+import pandas as pd
+import pyBigWig
+#enformer imports
+import tensorflow as tf
+
+test_len = CHROM_LEN
+test_chrom = CHROMOSOMES
+
+pred_samples_pretty = ['Keratinocyte','Epimap_Astrocyte','Nott19_Astrocyte','Monocyte','Nott19_Microglia','Nott19_Neuron','Heart']
+pred_samples = ['KERATINOCYTE','ASTROCYTE','Nott19_Astrocyte','Monocyte','Nott19_Microglia','Nott19_Neuron','HEART LEFT VENTRICLE']
+labs = ['h3k27ac','h3k4me3']
+avg_peaks = 128*8
+
+#initiate data connection
+data_conn = initiate_bigwigs(cells=pred_samples,
+                             cell_probs=np.repeat(1, len(pred_samples)),
+                             chromosomes=test_chrom,
+                             chromosome_probs=np.repeat(1, len(test_chrom)),
+                             features=["A", "C", "G", "T","chrom_access_embed"],
+                             training=False,
+                             labels=labs,
+                             pred_res=128,
+                             labels_for_all_cells=False)
+
+## --------------------------
+## Model loading
+
+#embedding layers do not give gradients so can't get gradients on input:
+# https://github.com/keras-team/keras/issues/12270
+# need to split model
+# and get gradient on gbl after embedding
+
+#load EC
+SAVE_PATH = pathlib.Path("./model_results")
+from dna_hist_mark_pred.enf_celltyping_test import Enformer_Celltyping
+assays = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3']
+model = Enformer_Celltyping(assays=assays,
+                            enf_path=str(DATA_PATH / "enformer_model"),
+                            use_prebuilt_model=True,
+                            freeze = False,
+                            enf_celltyping_pth = f"{SAVE_PATH}/final_models/EC_quant_combn_full")
+
+#compile loaded model
+model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0002),
+                  loss=tf.keras.losses.mean_squared_error)
+
+#also load enf since pre-computing positions for gradients
+#Transform input data by passing through Enformer
+#less memory intensive than using map() on data generator
+from dna_hist_mark_pred.utils import create_enf_chopped_model
+enf = create_enf_chopped_model(str(DATA_PATH / "enformer_model"))
+
+#get weights into two surrogate models
+EC_mod = model.get_model()
+EC_mod_embed = build_ec_embed_atac()
+EC_mod_embed.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0002),
+                     loss=tf.keras.losses.mean_squared_error)
+EC_mod_embed_aftr = build_ec_aftr_embed()
+EC_mod_embed_aftr.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.0002),
+                          loss=tf.keras.losses.mean_squared_error)
+
+#make everything trainable
+for layer in EC_mod.layers:
+    layer.trainable = True    
+for layer in EC_mod_embed.layers:
+    layer.trainable = True
+for layer in EC_mod_embed_aftr.layers:
+    layer.trainable = True    
+#move over layer weights by name
+EC_mod_embed_lyr_nmes = [i.name for i in EC_mod_embed.layers]
+EC_mod_embed_a_lyr_nmes = [i.name for i in EC_mod_embed_aftr.layers]
+EC_mod_lyr_nmes = [i.name for i in EC_mod.layers]
+
+for ind, nme_i in enumerate(EC_mod_embed_lyr_nmes):
+    if nme_i in EC_mod_lyr_nmes:
+        ind_lyr = EC_mod_lyr_nmes.index(nme_i)
+        trained_weights_i = EC_mod.layers[ind_lyr].get_weights()
+        EC_mod_embed.layers[ind].set_weights(trained_weights_i)
+    else:
+        print("EC before Embed - Didn't find: ",nme_i)    
+
+for ind, nme_i in enumerate(EC_mod_embed_a_lyr_nmes):
+    if nme_i in EC_mod_lyr_nmes:
+        ind_lyr = EC_mod_lyr_nmes.index(nme_i)
+        trained_weights_i = EC_mod.layers[ind_lyr].get_weights()
+        EC_mod_embed_aftr.layers[ind].set_weights(trained_weights_i)
+    else:
+        print("EC aftr Embed - Didn't find: ",nme_i)     
+        
+        
+#make everything non-trainable now
+for layer in EC_mod.layers:
+    layer.trainable = False   
+for layer in EC_mod_embed.layers:
+    layer.trainable = False   
+for layer in EC_mod_embed_aftr.layers:
+    layer.trainable = False            
+    
+#-----------------------------------
+
+#get inputs - cell and hist mark to check
 labels = HIST_MARKS 
 #remove atac from hist 
-labels.remove('atac')
+labels.remove('atac')    
 
 #input mark
 import argparse
@@ -21,126 +136,113 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser(description="train")
     parser.add_argument('-cell', '--cell', default='Monocyte', type=str, help='Cell type')
+    parser.add_argument('-hist', '--hist', default='h3k27ac', type=str, help='Hist mark')
     args = parser.parse_args()
     return args
 
 args=get_args()
 
-cell=args.cell
+cell = args.cell #'Monocyte'
+hist = args.hist #'h3k27ac'
+#leading and trailing whitespace
+cell = cell.strip()
+hist = hist.strip()
 
-SAVE_PATH = pathlib.Path("./model_results")
-pred_res = 128
-top_x = .1
-bot_x = .01
+#get index of hist in model outputs
+hist_ind = labels.index(hist)
+#get cell name for data laoder
+cell_nme_i=pred_samples[pred_samples_pretty.index(cell)]
 
-#load values and get diff
-for hist_i in labels:
-    print(hist_i)
-    mono_hist = pyBigWig.open(str(SAVE_PATH /"predictions"/f"{cell}_{hist_i}.bigWig"))
-    mono_hist_ng = pyBigWig.open(str(SAVE_PATH /"predictions"/f"{cell}_no_gbl_{hist_i}.bigWig"))
-    #save to bigwig, convert to bed after
-    bw_top = pyBigWig.open(str(SAVE_PATH /"predictions"/f"{cell}_{hist_i}_top.bigWig"), "w")
-    bw_bot = pyBigWig.open(str(SAVE_PATH /"predictions"/f"{cell}_{hist_i}_bot.bigWig"), "w")
-    bw_top.addHeader(list(zip(CHROMOSOMES , CHROM_LEN)), maxZooms=0) # zip two turples
-    bw_bot.addHeader(list(zip(CHROMOSOMES , CHROM_LEN)), maxZooms=0) # zip two turples
-    for ind,the_chr in enumerate(CHROMOSOMES):
-        print("***"*5)
-        print(the_chr)
-        mono_hist_vals = np.nan_to_num(mono_hist.values(the_chr, 0, CHROM_LEN[ind],numpy=True))
-        mono_hist_ng_vals = np.nan_to_num(mono_hist_ng.values(the_chr, 0, CHROM_LEN[ind],numpy=True))
-        #restrict positions to where there was a peak with gbl then wasn't with none
-        peak_act_mask = mono_hist_vals>2
-        no_peak_ng_mask = mono_hist_ng_vals<2
-        peak_combn_mask = np.logical_and(peak_act_mask, no_peak_ng_mask)
-        diff = mono_hist_vals[peak_combn_mask]-mono_hist_ng_vals[peak_combn_mask]
-        order = diff.argsort()
-        ranks = order.argsort()
-        #get indexes from org for diff so can work back to genomic locations
-        #get genomic position indicies for diff
-        diff_ind = np.where((mono_hist_vals>2)&(mono_hist_ng_vals<2))[0]
-        #10% with most drop in peak size
-        print(f"median drop top 10%: {np.median(diff[ranks>ranks.shape[0]*.9])}, {diff[ranks>ranks.shape[0]*.9].shape[0]//128} 128bp positions")
-        #now get genomic positions for top X%
-        top10_genomic_pos = diff_ind[ranks>ranks.shape[0]*(1-top_x)]
-        #validate we got them
-        print(f"median drop top 10%: {np.median(mono_hist_vals[top10_genomic_pos]-mono_hist_ng_vals[top10_genomic_pos])}, {(mono_hist_vals[top10_genomic_pos]-mono_hist_ng_vals[top10_genomic_pos]).shape[0]//128} 128bp positions")
-        #now get positions closest to zero
-        diff_abs = np.abs(mono_hist_vals[peak_act_mask]-mono_hist_ng_vals[peak_act_mask])
-        order_abs = diff_abs.argsort()
-        ranks_abs = order_abs.argsort()
-        #get indexes from org for diff so can work back to genomic locations
-        #get genomic position indicies for diff
-        diff_abs_ind = np.where((mono_hist_vals>2))[0]
-        #1% with most drop in peak size
-        print(f"median drop bottom 1%: {np.median(diff_abs[ranks_abs<ranks_abs.shape[0]*.01])}, {diff_abs[ranks_abs<ranks_abs.shape[0]*.01].shape[0]//128} 128bp positions")
-        #now get genomic positions for bottom X%
-        bot10_genomic_pos = diff_abs_ind[ranks_abs<ranks_abs.shape[0]*bot_x]
-        #validate we got them
-        print(f"median drop bottom 1%: {np.median(mono_hist_vals[bot10_genomic_pos]-mono_hist_ng_vals[bot10_genomic_pos])}, {(mono_hist_vals[bot10_genomic_pos]-mono_hist_ng_vals[bot10_genomic_pos]).shape[0]//128} 128bp positions")
-        #remove large files
-        del diff_abs_ind, ranks_abs, order_abs, diff_abs, diff_ind, ranks, order, diff 
-        del peak_act_mask, no_peak_ng_mask, mono_hist_ng_vals, mono_hist_vals, peak_combn_mask
-        #save to bigwig, convert to bed after
-        #get starts and ends, chroms
-        starts = np.arange(0,CHROM_LEN[ind])
-        ends = np.arange(1,CHROM_LEN[ind]+1)
-        chroms = np.array([the_chr] * len(starts))
-        #create array of zeros and add 1 for chosen positions
-        vals = np.zeros(CHROM_LEN[ind])
-        vals[top10_genomic_pos]=1.0
-        vals_bot = np.zeros(CHROM_LEN[ind])
-        vals_bot[bot10_genomic_pos]=1.0
-        bw_top.addEntries(chroms, starts,
-                ends=ends, values=vals)
-        bw_bot.addEntries(chroms, starts,
-                ends=ends, values=vals_bot)
-    bw_top.close()
-    bw_bot.close()
+mono_hist = pyBigWig.open(str(SAVE_PATH /"predictions"/f"{cell}_{hist}.bigWig"))
+#save to bigwig, convert to bed after
+bw_top = pyBigWig.open(str(SAVE_PATH /"predictions"/f"{cell}_{hist}_grad_top.bigWig"), "w")
+bw_top.addHeader(list(zip(CHROMOSOMES , CHROM_LEN)), maxZooms=0) # zip two turples
+ind_i=0
+for ind,the_chr in enumerate(CHROMOSOMES):
+    print("***"*5)
+    print(the_chr)
+    all_grads = []
+    #get len divis by 128
+    remainder = CHROM_LEN[ind]%(avg_peaks)
+    mono_hist_vals = np.nan_to_num(mono_hist.values(the_chr, 0, CHROM_LEN[ind]-remainder,numpy=True))
+    mono_hist_vals_pred_res = np.mean(mono_hist_vals.reshape(-1, avg_peaks),axis=1)
+    del mono_hist_vals
+    #restrict positions to where there was a peak with gbl then wasn't with none
+    peak_act_mask = mono_hist_vals_pred_res>2
+    #get index of where these peaks are
+    peak_ind = np.where(mono_hist_vals_pred_res>2)[0]
+    del mono_hist_vals_pred_res
+    print(f"{len(peak_ind)} peaks found at resolution {avg_peaks} for {the_chr}")
+    #get all possible start/end/chr values
+    starts = np.arange(0,CHROM_LEN[ind])
+    ends = np.arange(1,CHROM_LEN[ind]+1)
+    chroms = np.array([the_chr] * len(starts))
+    #now loop through these peak positions to get grad of gbl for hist mark of interest for each
+    for peak_i in peak_ind:
+        strt = peak_i*avg_peaks - (196_608//2) #get chromosonal pos of peak
+        #1562*128 => CA recep field
+        if (strt>0+(((1562*128)//2)-(196_608//2))) and ((strt+((1562*128)//2)+((196_608//2)))<=CHROM_LEN[ind]):
+            #load the X values for the position
+            X = next(generate_data(cells=cell_nme_i,chromosomes=test_chrom,
+                            cell_probs=np.repeat(1, len(pred_samples)),
+                            chromosome_probs=np.repeat(1, len(test_chrom)),
+                            features=["A", "C", "G", "T","chrom_access_embed"],
+                            labels=labs,
+                            data=data_conn,
+                            rand_pos=False,
+                            labels_for_all_cells=False,
+                            chro=the_chr,pos=strt,
+                            data_trans = enf,
+                            return_y = False,
+                            training=False))
+            #pass X to pre Embed layers
+            pre_embed_out = EC_mod_embed(X)
+            #update X vals
+            X_update = {'dna':X['dna'],
+                        'chrom_access_lcl1':pre_embed_out[0],
+                        'chrom_access_lcl2':pre_embed_out[1],
+                        'chrom_access_lcl3':pre_embed_out[2],
+                        'chrom_access_gbl':pre_embed_out[3]}
+            #test to ensure surrogate models match actual model on first peak
+            if ind_i==0:
+                #past to post embed layers to get pred
+                pred_surr = EC_mod_embed_aftr(X_update) 
+                #check perf against act model
+                pred = EC_mod(X)
+                assert pearsonR(pred,pred_surr)>.99, f"Surrogate models do not make same pred as original, Pearson R: {pearsonR(pred,pred_surr)}"
+                ind_i+=1
+            
+            #now work out gradient
+            X2 = {k:tf.Variable(tf.identity(v)) for k, v in X_update.items()}
+            with tf.GradientTape() as g:
+                #get gradient with respect to specific hist mark output
+                output_tensor = EC_mod_embed_aftr(X2)[:,:,hist_ind]
 
-os.makedirs(str(SAVE_PATH /'motif_analysis'), exist_ok=True) 
-#now just aggregate
-hists = ['h3k27ac', 'h3k4me1', 'h3k4me3', 'h3k9me3', 'h3k27me3', 'h3k36me3']
-dat = []
-for hist_i in hists:
-    bot_motifs = pd.read_csv(str(SAVE_PATH /'motif_analysis' / f'{cell_i}_{hist_i}_bot' /'knownResults.txt'),sep='\t')
-    #keep just common cols
-    bot_motifs = bot_motifs.iloc[:,0:5]
-    bot_motifs['motif']='bot'
-    bot_motifs['hist']=hist_i
-    top_motifs = pd.read_csv(str(SAVE_PATH /'motif_analysis' / f'{cell_i}_{hist_i}_top' /'knownResults.txt'),sep='\t')
-    #keep just common cols
-    top_motifs = top_motifs.iloc[:,0:5]
-    top_motifs['motif']='top'
-    top_motifs['hist']=hist_i
-    dat.append(pd.concat([top_motifs, bot_motifs]))
-all_dat = pd.concat(dat)    
-all_dat.drop_duplicates(inplace=True)
-all_dat['cell'] = cell
-#get sig res
-sig_dat = []
-sig_w_bot = []
-print("Number of significant, unique TF's:")
-for hist_i in hists:
-    top_hi = all_dat[(all_dat['hist']==hist_i)&(all_dat['motif']=='top')&((all_dat['q-value (Benjamini)'] < 0.05))]
-    bot_hi = all_dat[(all_dat['hist']==hist_i)&(all_dat['motif']=='bot')&((all_dat['q-value (Benjamini)'] < 0.05))]
-    print(f'{hist_i}: {top_hi[~top_hi["Motif Name"].isin(bot_hi["Motif Name"].tolist())].shape[0]}')
-    sig_dat.append(top_hi[~top_hi['Motif Name'].isin(bot_hi['Motif Name'].tolist())])
-    sig_w_bot.append(top_hi)
-sig_dat = pd.concat(sig_dat)
-sig_dat['cell'] = cell
-
-#now save for cell type enrichment analysis
-#save data of sig TF's only due to Global Motifs and run EWCE
-cells_sig_all = sig_dat.copy()
-cells_sig_all[['TF','Experiment','Tool']] = cells_sig_all['Motif Name'].str.split('/',expand=True)
-cells_sig_all.drop(['Motif Name', 'motif','P-value','Tool'], axis=1,inplace=True)
-cells_sig_all[['TF','TF2']] = cells_sig_all['TF'].str.split('(',expand=True)
-cells_sig_all = cells_sig_all[['cell','TF','TF2','Experiment','Consensus','Log P-value','q-value (Benjamini)']]
-cells_sig_all.to_csv(str(SAVE_PATH /'motif_analysis' / 'all_cells_sig_gbl_motifs.csv'), sep=',',index=False)
-#save all Tf's tested too to use as a background list for EWCE
-cells_all_dat_all = all_dat.copy()
-cells_all_dat_all[['TF','Experiment','Tool']] = cells_all_dat_all['Motif Name'].str.split('/',expand=True)
-cells_all_dat_all.drop(['motif','P-value','Log P-value','Tool','q-value (Benjamini)','hist','cell'], axis=1,inplace=True)
-cells_all_dat_all[['TF','TF2']] = cells_all_dat_all['TF'].str.split('(',expand=True)
-cells_all_dat_all.drop_duplicates(inplace=True)
-cells_all_dat_all.to_csv(str(SAVE_PATH /'motif_analysis' / 'homer_background_tfs.csv'), sep=',',index=False)
+            gradients = g.gradient(output_tensor, X2)
+            #aggregate the gradient on the gbl
+            all_grads.append(np.mean(np.absolute(gradients['chrom_access_gbl'][0])))
+        else:
+            #get abs value of gradients so no negatives
+            all_grads.append(0)
+    #get indexes of top 10% of values (peak gradients)
+    n = int(len(all_grads)*.1)
+    top_n_ind = sorted(range(len(all_grads)), key=lambda i: all_grads[i])[-n:]
+    #now get genomic positions for top X%
+    top_n_peak = peak_ind[top_n_ind]
+    top_n_genomic_pos = [i*avg_peaks for i in top_n_peak]
+    #now get genomic positions for top X%
+    #save to bigwig
+    #create array of zeros and add 1 for chosen positions
+    vals = np.zeros(CHROM_LEN[ind])
+    #going to add 1's for full avg_peaks length
+    for pos_i in top_n_genomic_pos: 
+        for j in range(avg_peaks):
+            vals[pos_i+j]=1.0
+    bw_top.addEntries(chroms, starts,
+                      ends=ends, values=vals)
+    #help with memory usage, clear mem every chrom
+    import gc
+    tf.keras.backend.clear_session()
+    gc.collect()
+    del vals
+bw_top.close()
