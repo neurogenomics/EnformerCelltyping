@@ -114,3 +114,11 @@ See [reproducing_cell_type_motif_enrichment](https://github.com/neurogenomics/En
 for details and related scripts.
 
 
+## Reproducing LDSC enrichment
+
+Reproducing the cell type LDSC enrichment analysis from our paper includes predicting 
+across the entire genome for cell types as explained in [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb). 
+See [reproducing_ldsc_enrichment](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_ldsc_enrichment.ipynb) 
+for details and related scripts.
+
+
