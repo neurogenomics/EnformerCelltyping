@@ -35,6 +35,12 @@ for Enformer Celltyping.
   type of interest with precomputed DNA embeddings to speed up the run. See 
 [using_enformer_celltyping](https://github.com/neurogenomics/EnformerCelltyping/blob/master/using_enformer_celltyping.ipynb)
   for more information on requirements of this.
+* predict_genome_DNA_only.py - script to predict the genome-wide histone mark signals for a cell type of 
+  interest but using the pre-trained model (weights created with pretrain.py) and only returning the 
+  DNA-based predictions.
+* predict_genome_precomp_DNA_only.py - script to predict the genome-wide histone mark signals for a cell 
+  type of interest with precomputed DNA embeddings to speed up the run but using the pre-trained model 
+  (weights created with pretrain.py) and only returning the DNA-based predictions.
 * process_qtl_as_sumstats.py - script to process the BLUEPRINT hQTL datasets in a sumstats format
   to be used with Enformer Celltyping predictions and SLDP. See 
   [Kundu et al](https://www.biorxiv.org/content/10.1101/2020.01.15.907436v1.full) for more details 
