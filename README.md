@@ -127,4 +127,6 @@ across the entire genome for cell types as explained in [using_enformer_celltypi
 See [reproducing_ldsc_enrichment](https://github.com/neurogenomics/EnformerCelltyping/blob/master/reproducing_ldsc_enrichment.ipynb) 
 for details and related scripts.
 
+## Cite
 
+If you use this work, please cite our [paper](https://doi.org/10.1101/2024.02.15.580484).
