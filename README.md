@@ -129,4 +129,4 @@ for details and related scripts.
 
 ## Cite
 
-If you use this work, please cite our [paper](https://doi.org/10.1101/2024.02.15.580484).
+If you use this work, please cite our [paper](https://doi.org/10.1038/s41467-024-54441-5).
