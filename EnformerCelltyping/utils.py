@@ -2901,8 +2901,8 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
                         pred_prop: float = (128*896)/196_608,
                         pred_resolution: int = 128):
     """
-    Get the start positions for the DNA sequences to pass to 
-    model data generator to cover window size of predicitons
+    Plot the DNA window and SNP position for the SNP effect prediction.
+    
     Arguments:
         dna_strt: 
             Start positions for DNA sequence so predicitons 
@@ -2918,7 +2918,7 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
         window_size_CA: 
             Window size of chromatin accessibility input for the model. 
             Default is 1562*128 - Enformer Celltyping's local chromatin
-            accessibility window size.   
+            accessibility window size.    
         pred_prop:
             Centred proportion of base-pairs that the model predicts.
             This is necessary since these models predict in a funnel
@@ -2928,9 +2928,9 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
         pred_resolution:
             The resolution (number of base-pairs averaged) at which the 
             model predicts. Default is 128bp, Enformer Celltyping's 
-            predicted resolution.    
-    returns:
-        plot of the DNA positions predicted for.
+            predicted resolution.      
+    Returns:
+        A seaborn FacetGrid object with the plot.
     """
     #calc the actual base-pairs
     buffer_bp,target_length,target_bp = create_buffer(window_size=window_size_dna,
@@ -2959,7 +2959,8 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
     #change style for SNP
     tmp['styl'] = np.where(tmp['variable']=='snp_pos','X','O')
     g = sns.FacetGrid(tmp, col="id",hue="colour",col_wrap=len(dna_strt))
-    g.map(sns.scatterplot, 'col', 'value',s=80,style=tmp["styl"],hue=tmp["colour"],palette="Set2")
+    # Separate the legend handling from the plot
+    g.map(sns.scatterplot, 'col', 'value', s=80, style=tmp["styl"], palette="Set2", hue=tmp["colour"],legend=False)
     pos = snp_pos_real[0]
     #get lines connecting
     tmp2 = tmp[tmp['variable']!='snp_pos']
@@ -2968,6 +2969,7 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
     tmp2['value2'] = tmp2_pw['value'].values
     tmp2.sort_values('id',inplace=True)
     tmp2.reset_index(inplace=True)
+    
     #func to get at each col
     def const_line(data, **kws):
         id_run = data['id'].values[0]
@@ -2990,8 +2992,9 @@ def plot_snp_dna_window(dna_strt: list, snp_pos: list,
                              transform=plt.gcf().transFigure,
                              weight="bold",
                              fontdict={'size': 12},
-                             color=pal[len(set(tmp['id']))],#len(set(tmp['id']))+
+                             color=pal[len(set(tmp['id']))],
                              bbox={'facecolor': 'none','edgecolor': 'white','pad':5.5})
+    
     g.map_dataframe(const_line)
     # add receptive field lines
     g.map(plt.axhline, 

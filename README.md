@@ -3,7 +3,7 @@
 [<img src="./EnformerCelltyping.png" width="600" />](./EnformerCelltyping.png)
 
 TL;DR - A deep learning model which incorporates distal effects of DNA interactions, 
-up to 100,000 base-pairs away, to predict epigenetic signals in previously 
+with a DNA receptive field of 196,608 bp, to predict epigenetic signals in previously 
 unseen cell types using DNA and chromatin accessibility data.
 
 ### Detailed Explanation
@@ -19,7 +19,7 @@ H3k4me3, H3k9me3, H3k27me3, H3k36me3).
 The prediction of histone marks, transcription factors and gene expression from
 DNA was progressed by [Enformer](https://www.nature.com/articles/s41592-021-01252-x).
 A multi-headed attention model which can consdier long-range DNA interactions
-(up to ~100k base-pairs away). However, a key limitation is that Enformer can
+(196,608 bp receptive field). However, a key limitation is that Enformer can
 only predict on the cell types upon which it was trained and thus is primarily 
 useful for interpretation of its output, for example _in silico_ saturated
 mutagenesis of DNA sequence. Here, we extend these long-range capabilities 
